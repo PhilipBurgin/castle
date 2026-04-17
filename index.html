@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Castle Architect — Build Your Kingdom</title>
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;800&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --stone: #8b7d6b;
+    --stone-light: #c4b49a;
+    --stone-dark: #4a3f35;
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --gold-dark: #7a5c1e;
+    --parchment: #f5ead6;
+    --parchment-dark: #e8d4b0;
+    --blood: #8b1a1a;
+    --forest: #2d5a27;
+    --sky: #4a7fa5;
+    --ink: #1a1410;
+    --shadow: rgba(0,0,0,0.6);
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: ‘Crimson Pro’, serif;
+background: #1a1410;
+color: var(–parchment);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* ── STARFIELD BG ── */
+body::before {
+content: ‘’;
+position: fixed; inset: 0;
+background:
+radial-gradient(ellipse at 20% 80%, rgba(42,30,18,0.9) 0%, transparent 60%),
+radial-gradient(ellipse at 80% 20%, rgba(30,42,60,0.6) 0%, transparent 60%),
+#0d0a07;
+z-index: -2;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; min-height: 100vh; padding: 20px; }
+.screen.active { display: flex; flex-direction: column; align-items: center; }
+
+/* ── TITLE SCREEN ── */
+#screen-title {
+justify-content: center;
+background:
+url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘400’ height=‘400’%3E%3Cfilter id=‘n’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.65’ numOctaves=‘3’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘400’ height=‘400’ filter=‘url(%23n)’ opacity=‘0.04’/%3E%3C/svg%3E”),
+linear-gradient(180deg, #0d0a07 0%, #1a1008 40%, #0d0a07 100%);
+position: relative;
+overflow: hidden;
+}
+
+.title-castle {
+font-size: clamp(60px, 15vw, 200px);
+text-align: center;
+line-height: 0.85;
+animation: castleRise 2s ease-out forwards;
+opacity: 0;
+}
+
+@keyframes castleRise {
+from { opacity: 0; transform: translateY(40px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.title-main {
+font-family: ‘Cinzel’, serif;
+font-weight: 800;
+background: linear-gradient(180deg, var(–gold-light) 0%, var(–gold) 50%, var(–gold-dark) 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+text-shadow: none;
+display: block;
+filter: drop-shadow(0 0 30px rgba(201,168,76,0.4));
+}
+
+.title-sub {
+font-family: ‘Cinzel’, serif;
+font-weight: 400;
+font-size: 0.28em;
+letter-spacing: 0.3em;
+color: var(–stone-light);
+display: block;
+margin-top: 10px;
+}
+
+.title-desc {
+font-family: ‘Crimson Pro’, serif;
+font-style: italic;
+font-size: clamp(16px, 2.5vw, 22px);
+color: var(–parchment-dark);
+text-align: center;
+max-width: 520px;
+margin: 30px auto;
+line-height: 1.7;
+animation: fadeIn 2s 0.8s ease-out forwards;
+opacity: 0;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; } to { opacity: 1; }
+}
+
+.btn-primary {
+font-family: ‘Cinzel’, serif;
+font-weight: 600;
+font-size: 18px;
+letter-spacing: 0.15em;
+padding: 16px 48px;
+background: linear-gradient(135deg, var(–gold-dark) 0%, var(–gold) 50%, var(–gold-dark) 100%);
+color: var(–ink);
+border: 2px solid var(–gold-light);
+cursor: pointer;
+clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
+transition: all 0.2s;
+animation: fadeIn 2s 1.4s ease-out forwards;
+opacity: 0;
+position: relative;
+}
+
+.btn-primary:hover {
+background: linear-gradient(135deg, var(–gold) 0%, var(–gold-light) 50%, var(–gold) 100%);
+transform: translateY(-2px);
+box-shadow: 0 8px 30px rgba(201,168,76,0.4);
+}
+
+.btn-secondary {
+font-family: ‘Cinzel’, serif;
+font-size: 14px;
+letter-spacing: 0.1em;
+padding: 10px 28px;
+background: transparent;
+color: var(–stone-light);
+border: 1px solid var(–stone);
+cursor: pointer;
+transition: all 0.2s;
+clip-path: polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px);
+}
+.btn-secondary:hover { background: rgba(139,125,107,0.2); color: var(–parchment); border-color: var(–stone-light); }
+
+.btn-danger {
+font-family: ‘Cinzel’, serif;
+font-size: 14px;
+padding: 10px 24px;
+background: rgba(139,26,26,0.3);
+color: #e07070;
+border: 1px solid var(–blood);
+cursor: pointer;
+transition: all 0.2s;
+clip-path: polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px);
+}
+.btn-danger:hover { background: rgba(139,26,26,0.6); }
+
+/* ── PANEL ── */
+.panel {
+background: linear-gradient(135deg, rgba(74,63,53,0.85) 0%, rgba(42,36,30,0.9) 100%);
+border: 1px solid var(–stone);
+padding: 24px;
+position: relative;
+backdrop-filter: blur(4px);
+}
+.panel::before {
+content: ‘’;
+position: absolute;
+inset: 3px;
+border: 1px solid rgba(201,168,76,0.15);
+pointer-events: none;
+}
+
+.panel-title {
+font-family: ‘Cinzel’, serif;
+font-weight: 600;
+font-size: 13px;
+letter-spacing: 0.25em;
+text-transform: uppercase;
+color: var(–gold);
+margin-bottom: 16px;
+padding-bottom: 10px;
+border-bottom: 1px solid rgba(201,168,76,0.3);
+}
+
+/* ── HUD / TOPBAR ── */
+#hud {
+position: fixed;
+top: 0; left: 0; right: 0;
+z-index: 100;
+background: linear-gradient(180deg, rgba(13,10,7,0.97) 0%, rgba(26,20,8,0.9) 100%);
+border-bottom: 1px solid var(–stone-dark);
+padding: 8px 20px;
+display: flex;
+align-items: center;
+gap: 20px;
+font-family: ‘Cinzel’, serif;
+font-size: 13px;
+flex-wrap: wrap;
+}
+
+.hud-game-title {
+font-weight: 800;
+color: var(–gold);
+letter-spacing: 0.1em;
+margin-right: 10px;
+font-size: 16px;
+}
+
+.hud-stat {
+display: flex;
+align-items: center;
+gap: 6px;
+color: var(–parchment-dark);
+background: rgba(0,0,0,0.3);
+padding: 5px 12px;
+border: 1px solid rgba(139,125,107,0.3);
+}
+.hud-stat .icon { font-size: 16px; }
+.hud-stat .val { color: var(–gold-light); font-weight: 600; }
+
+.hud-phase {
+margin-left: auto;
+color: var(–stone-light);
+font-size: 11px;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+}
+
+/* ── MANAGEMENT SCREEN ── */
+#screen-manage {
+padding-top: 70px;
+justify-content: flex-start;
+gap: 20px;
+}
+
+.manage-header {
+font-family: ‘Cinzel’, serif;
+font-size: clamp(22px, 4vw, 36px);
+font-weight: 800;
+color: var(–gold);
+text-align: center;
+width: 100%;
+}
+.manage-header span { color: var(–stone-light); font-weight: 400; font-size: 0.55em; display: block; letter-spacing: 0.2em; margin-top: 4px; }
+
+.manage-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+gap: 16px;
+width: 100%;
+max-width: 1100px;
+}
+
+/* Resource bars */
+.resource-bar-wrap { margin-bottom: 12px; }
+.resource-bar-label {
+display: flex;
+justify-content: space-between;
+font-size: 13px;
+margin-bottom: 4px;
+color: var(–stone-light);
+}
+.resource-bar-label strong { color: var(–parchment); }
+.resource-bar {
+height: 8px;
+background: rgba(0,0,0,0.4);
+border: 1px solid rgba(139,125,107,0.3);
+position: relative;
+overflow: hidden;
+}
+.resource-bar-fill {
+height: 100%;
+transition: width 0.6s ease;
+position: relative;
+}
+.resource-bar-fill::after {
+content: ‘’;
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 40%;
+background: rgba(255,255,255,0.2);
+}
+
+/* Worker list */
+.worker-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 10px 12px;
+background: rgba(0,0,0,0.25);
+border: 1px solid rgba(139,125,107,0.2);
+margin-bottom: 8px;
+transition: all 0.2s;
+}
+.worker-item:hover { border-color: rgba(201,168,76,0.3); background: rgba(201,168,76,0.05); }
+.worker-name { font-size: 15px; font-weight: 600; }
+.worker-role { font-size: 12px; color: var(–stone-light); font-style: italic; }
+.worker-stat { font-family: ‘Cinzel’, serif; font-size: 12px; color: var(–gold); }
+.worker-status { font-size: 11px; padding: 3px 8px; border: 1px solid; }
+.worker-status.idle { color: #88cc88; border-color: #558855; background: rgba(85,136,85,0.15); }
+.worker-status.busy { color: #cc9944; border-color: #886622; background: rgba(136,102,34,0.15); }
+
+/* Trade / Buy */
+.trade-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 10px 12px;
+background: rgba(0,0,0,0.2);
+border: 1px solid rgba(139,125,107,0.2);
+margin-bottom: 8px;
+cursor: pointer;
+transition: all 0.2s;
+}
+.trade-item:hover { border-color: var(–gold-dark); background: rgba(201,168,76,0.08); }
+.trade-item.disabled { opacity: 0.4; cursor: not-allowed; }
+.trade-icon { font-size: 22px; width: 36px; text-align: center; }
+.trade-info { flex: 1; padding: 0 12px; }
+.trade-name { font-size: 15px; font-weight: 600; }
+.trade-desc { font-size: 12px; color: var(–stone-light); font-style: italic; }
+.trade-cost { font-family: ‘Cinzel’, serif; font-size: 13px; color: var(–gold); text-align: right; }
+.trade-cost span { display: block; font-size: 10px; color: var(–stone-light); }
+
+/* Events */
+.event-log {
+max-height: 180px;
+overflow-y: auto;
+font-size: 13px;
+line-height: 1.8;
+}
+.event-log::-webkit-scrollbar { width: 4px; }
+.event-log::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+.event-log::-webkit-scrollbar-thumb { background: var(–stone-dark); }
+
+.event-entry {
+padding: 4px 0;
+border-bottom: 1px solid rgba(139,125,107,0.1);
+animation: slideIn 0.3s ease-out;
+}
+@keyframes slideIn {
+from { opacity: 0; transform: translateX(-10px); }
+to { opacity: 1; transform: translateX(0); }
+}
+.event-entry.good { color: #88cc88; }
+.event-entry.bad { color: #cc7777; }
+.event-entry.neutral { color: var(–stone-light); }
+.event-entry.gold { color: var(–gold-light); }
+
+/* Season / Turn indicator */
+.season-display {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 30px;
+padding: 16px;
+background: rgba(0,0,0,0.4);
+border: 1px solid rgba(201,168,76,0.2);
+border-radius: 0;
+width: 100%;
+max-width: 500px;
+margin: 0 auto;
+}
+.season-icon { font-size: 36px; }
+.season-name { font-family: ‘Cinzel’, serif; font-size: 20px; color: var(–gold); }
+.season-year { font-size: 13px; color: var(–stone-light); letter-spacing: 0.1em; }
+
+/* Advance turn button */
+.advance-btn {
+width: 100%;
+padding: 14px;
+background: linear-gradient(135deg, rgba(74,63,53,0.6), rgba(42,36,30,0.8));
+border: 1px solid var(–gold-dark);
+color: var(–gold-light);
+font-family: ‘Cinzel’, serif;
+font-size: 14px;
+letter-spacing: 0.15em;
+cursor: pointer;
+transition: all 0.25s;
+text-transform: uppercase;
+margin-top: 8px;
+}
+.advance-btn:hover {
+background: linear-gradient(135deg, rgba(122,92,30,0.5), rgba(100,70,20,0.7));
+border-color: var(–gold);
+color: var(–gold-light);
+box-shadow: 0 0 20px rgba(201,168,76,0.2);
+}
+
+/* ── BUILD SCREEN ── */
+#screen-build {
+padding-top: 70px;
+justify-content: flex-start;
+}
+
+.build-layout {
+display: grid;
+grid-template-columns: 220px 1fr 220px;
+gap: 16px;
+width: 100%;
+max-width: 1200px;
+padding: 16px;
+}
+
+@media (max-width: 900px) {
+.build-layout {
+grid-template-columns: 1fr;
+}
+}
+
+/* Palette */
+.palette-item {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 8px 10px;
+cursor: pointer;
+border: 2px solid transparent;
+transition: all 0.15s;
+margin-bottom: 4px;
+background: rgba(0,0,0,0.2);
+}
+.palette-item:hover { background: rgba(201,168,76,0.08); border-color: rgba(201,168,76,0.3); }
+.palette-item.selected { border-color: var(–gold); background: rgba(201,168,76,0.12); }
+.palette-item.locked { opacity: 0.35; cursor: not-allowed; }
+.palette-icon { font-size: 22px; width: 28px; text-align: center; }
+.palette-name { font-size: 13px; font-weight: 600; }
+.palette-cost { font-family: ‘Cinzel’, serif; font-size: 11px; color: var(–gold); }
+
+/* Castle Grid */
+.castle-grid-wrap {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 8px;
+}
+
+.castle-grid {
+display: grid;
+gap: 2px;
+background: rgba(0,0,0,0.5);
+border: 2px solid var(–stone-dark);
+padding: 8px;
+position: relative;
+}
+
+.grid-cell {
+width: 52px;
+height: 52px;
+background: rgba(30,22,14,0.8);
+border: 1px solid rgba(74,63,53,0.4);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 26px;
+cursor: pointer;
+transition: all 0.12s;
+position: relative;
+user-select: none;
+}
+
+.grid-cell:hover {
+background: rgba(201,168,76,0.1);
+border-color: rgba(201,168,76,0.4);
+z-index: 1;
+transform: scale(1.05);
+}
+
+.grid-cell.placed {
+background: rgba(74,63,53,0.5);
+border-color: rgba(139,125,107,0.5);
+}
+
+.grid-cell.ground {
+background: linear-gradient(180deg, rgba(45,90,39,0.3) 0%, rgba(45,90,39,0.5) 100%);
+border-color: rgba(45,90,39,0.6);
+}
+
+.grid-cell .cell-tooltip {
+display: none;
+position: absolute;
+bottom: calc(100% + 6px);
+left: 50%;
+transform: translateX(-50%);
+background: rgba(13,10,7,0.95);
+border: 1px solid var(–stone);
+padding: 4px 8px;
+font-size: 11px;
+color: var(–parchment);
+white-space: nowrap;
+font-family: ‘Cinzel’, serif;
+z-index: 10;
+}
+
+.grid-cell:hover .cell-tooltip { display: block; }
+
+/* Build info panel */
+.build-info { }
+.build-stat { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(139,125,107,0.15); font-size: 14px; }
+.build-stat .label { color: var(–stone-light); }
+.build-stat .value { color: var(–gold-light); font-family: ‘Cinzel’, serif; font-weight: 600; }
+
+/* ── MODAL ── */
+.modal-overlay {
+position: fixed; inset: 0;
+background: rgba(0,0,0,0.8);
+z-index: 200;
+display: none;
+align-items: center;
+justify-content: center;
+backdrop-filter: blur(3px);
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+background: linear-gradient(135deg, #2a2018 0%, #1a1408 100%);
+border: 1px solid var(–gold-dark);
+padding: 36px;
+max-width: 480px;
+width: 90%;
+position: relative;
+animation: modalIn 0.3s ease-out;
+}
+@keyframes modalIn {
+from { opacity: 0; transform: scale(0.92) translateY(20px); }
+to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-box::before {
+content: ‘’;
+position: absolute;
+inset: 4px;
+border: 1px solid rgba(201,168,76,0.15);
+pointer-events: none;
+}
+.modal-title {
+font-family: ‘Cinzel’, serif;
+font-size: 24px;
+font-weight: 700;
+color: var(–gold);
+margin-bottom: 12px;
+}
+.modal-body { color: var(–parchment-dark); line-height: 1.7; font-size: 16px; margin-bottom: 24px; }
+.modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+
+/* ── NOTIFICATION ── */
+.notification {
+position: fixed;
+top: 70px; right: 20px;
+background: linear-gradient(135deg, rgba(42,36,28,0.98), rgba(26,22,14,0.98));
+border-left: 3px solid var(–gold);
+padding: 12px 18px;
+font-size: 14px;
+max-width: 300px;
+z-index: 300;
+animation: notifIn 0.3s ease-out, notifOut 0.3s 2.7s ease-in forwards;
+font-family: ‘Crimson Pro’, serif;
+}
+.notification.error { border-left-color: var(–blood); }
+.notification.success { border-left-color: #558855; }
+@keyframes notifIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes notifOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(30px); } }
+
+/* Progress bar for castle completion */
+.castle-progress {
+width: 100%;
+margin-top: 8px;
+}
+.castle-progress-label {
+display: flex;
+justify-content: space-between;
+font-family: ‘Cinzel’, serif;
+font-size: 11px;
+color: var(–stone-light);
+margin-bottom: 4px;
+letter-spacing: 0.1em;
+}
+.castle-progress-bar {
+height: 6px;
+background: rgba(0,0,0,0.5);
+border: 1px solid rgba(139,125,107,0.3);
+}
+.castle-progress-fill {
+height: 100%;
+background: linear-gradient(90deg, var(–gold-dark), var(–gold));
+transition: width 0.5s ease;
+}
+
+/* Victory screen */
+#screen-victory {
+justify-content: center;
+text-align: center;
+gap: 24px;
+}
+.victory-title {
+font-family: ‘Cinzel’, serif;
+font-size: clamp(30px,6vw,60px);
+font-weight: 800;
+background: linear-gradient(180deg, var(–gold-light), var(–gold), var(–gold-dark));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+animation: glow 2s infinite alternate;
+}
+@keyframes glow {
+from { filter: drop-shadow(0 0 10px rgba(201,168,76,0.3)); }
+to { filter: drop-shadow(0 0 30px rgba(201,168,76,0.7)); }
+}
+
+/* Scrollbar global */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+::-webkit-scrollbar-thumb { background: var(–stone-dark); }
+
+/* Tooltip for palette */
+.section-divider {
+width: 100%;
+height: 1px;
+background: linear-gradient(90deg, transparent, var(–gold-dark), transparent);
+margin: 16px 0;
+}
+
+/* Hire worker row */
+.hire-row {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 8px 10px;
+background: rgba(0,0,0,0.2);
+border: 1px solid rgba(139,125,107,0.2);
+margin-bottom: 6px;
+font-size: 13px;
+}
+.hire-name { font-weight: 600; color: var(–parchment); }
+.hire-role { color: var(–stone-light); font-style: italic; font-size: 12px; }
+.hire-cost { font-family: ‘Cinzel’, serif; color: var(–gold); font-size: 12px; margin-right: 10px; }
+
+.tabs {
+display: flex;
+gap: 4px;
+margin-bottom: 16px;
+border-bottom: 1px solid rgba(139,125,107,0.3);
+padding-bottom: 0;
+}
+.tab {
+font-family: ‘Cinzel’, serif;
+font-size: 12px;
+letter-spacing: 0.1em;
+padding: 8px 16px;
+cursor: pointer;
+color: var(–stone-light);
+border: 1px solid transparent;
+border-bottom: none;
+transition: all 0.2s;
+background: transparent;
+position: relative;
+bottom: -1px;
+}
+.tab:hover { color: var(–parchment); }
+.tab.active {
+color: var(–gold);
+border-color: rgba(139,125,107,0.3);
+border-bottom-color: #1a1408;
+background: rgba(26,20,8,0.9);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.highlight-box {
+background: rgba(201,168,76,0.08);
+border: 1px solid rgba(201,168,76,0.25);
+padding: 12px 16px;
+font-size: 14px;
+line-height: 1.7;
+margin-bottom: 12px;
+color: var(–parchment-dark);
+font-style: italic;
+}
+</style>
+
+</head>
+<body>
+
+<!-- ═══════════════════ TITLE ═══════════════════ -->
+
+<div id="screen-title" class="screen active">
+  <div style="text-align:center; animation: castleRise 1.5s ease-out forwards;">
+    <div style="font-size: 80px; margin-bottom: -10px; filter: drop-shadow(0 0 20px rgba(201,168,76,0.3));">🏰</div>
+  </div>
+  <div class="title-castle">
+    <span class="title-main">Castle<br>Architect</span>
+    <span class="title-sub">Build Your Kingdom</span>
+  </div>
+  <p class="title-desc">
+    Rule your lands. Manage your treasury, gather resources, hire skilled workers — then design and build a mighty fortress stone by stone.
+  </p>
+  <button class="btn-primary" onclick="startGame()">BEGIN YOUR REIGN</button>
+  <p style="margin-top: 16px; font-size: 13px; color: var(--stone); font-style: italic; animation: fadeIn 2s 2s forwards; opacity: 0;">
+    Manage resources through the seasons, then construct your castle
+  </p>
+</div>
+
+<!-- ═══════════════════ HUD ═══════════════════ -->
+
+<div id="hud" style="display:none;">
+  <span class="hud-game-title">🏰 Castle Architect</span>
+  <div class="hud-stat"><span class="icon">💰</span><span id="hud-gold" class="val">500</span><span>Gold</span></div>
+  <div class="hud-stat"><span class="icon">🪨</span><span id="hud-stone" class="val">0</span><span>Stone</span></div>
+  <div class="hud-stat"><span class="icon">🪵</span><span id="hud-wood" class="val">0</span><span>Wood</span></div>
+  <div class="hud-stat"><span class="icon">👷</span><span id="hud-workers" class="val">0</span><span>Workers</span></div>
+  <div class="hud-stat"><span class="icon">📅</span><span id="hud-season" class="val">Spring</span><span>Y.<span id="hud-year">1</span></span></div>
+  <span class="hud-phase" id="hud-phase">MANAGEMENT PHASE</span>
+  <button class="btn-secondary" style="margin-left:8px; font-size:12px; padding:6px 14px;" onclick="switchPhase()">⚒ Build Mode</button>
+</div>
+
+<!-- ═══════════════════ MANAGEMENT ═══════════════════ -->
+
+<div id="screen-manage" class="screen">
+  <div class="manage-header">
+    Kingdom Management
+    <span id="manage-season-label">Spring — Year 1</span>
+  </div>
+
+  <div class="season-display">
+    <div class="season-icon" id="season-icon">🌸</div>
+    <div>
+      <div class="season-name" id="season-name-display">Spring</div>
+      <div class="season-year" id="season-year-display">Year 1 of your Reign</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-family:'Cinzel',serif; color:var(--gold-light); font-size:18px;" id="income-preview">+35 💰/turn</div>
+      <div style="font-size:12px; color:var(--stone-light);">est. income</div>
+    </div>
+  </div>
+
+  <div class="manage-grid">
+
+```
+<!-- Resources -->
+<div class="panel">
+  <div class="panel-title">📦 Resources & Treasury</div>
+
+  <div class="resource-bar-wrap">
+    <div class="resource-bar-label"><strong>💰 Gold</strong><span id="res-gold-val">500 / 2000</span></div>
+    <div class="resource-bar"><div class="resource-bar-fill" id="bar-gold" style="width:25%; background: linear-gradient(90deg, #7a5c1e, #c9a84c);"></div></div>
+  </div>
+  <div class="resource-bar-wrap">
+    <div class="resource-bar-label"><strong>🪨 Stone</strong><span id="res-stone-val">0 / 500</span></div>
+    <div class="resource-bar"><div class="resource-bar-fill" id="bar-stone" style="width:0%; background: linear-gradient(90deg, #555, #999);"></div></div>
+  </div>
+  <div class="resource-bar-wrap">
+    <div class="resource-bar-label"><strong>🪵 Wood</strong><span id="res-wood-val">0 / 500</span></div>
+    <div class="resource-bar"><div class="resource-bar-fill" id="bar-wood" style="width:0%; background: linear-gradient(90deg, #5a3a1a, #a07040);"></div></div>
+  </div>
+  <div class="resource-bar-wrap">
+    <div class="resource-bar-label"><strong>🍞 Food</strong><span id="res-food-val">50 / 200</span></div>
+    <div class="resource-bar"><div class="resource-bar-fill" id="bar-food" style="width:25%; background: linear-gradient(90deg, #5a4010, #c8922a);"></div></div>
+  </div>
+  <div class="resource-bar-wrap">
+    <div class="resource-bar-label"><strong>😊 Morale</strong><span id="res-morale-val">70 / 100</span></div>
+    <div class="resource-bar"><div class="resource-bar-fill" id="bar-morale" style="width:70%; background: linear-gradient(90deg, #2a5a8a, #4a9aca);"></div></div>
+  </div>
+
+  <div class="section-divider"></div>
+  <button class="advance-btn" onclick="advanceTurn()">⏭ Advance to Next Season</button>
+</div>
+
+<!-- Workers -->
+<div class="panel">
+  <div class="panel-title">👷 Your Workers</div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'workers-roster')">Roster</div>
+    <div class="tab" onclick="switchTab(this,'workers-hire')">Hire</div>
+    <div class="tab" onclick="switchTab(this,'workers-assign')">Assign</div>
+  </div>
+  <div id="workers-roster" class="tab-content active">
+    <div id="worker-list-el"><!-- filled by JS --></div>
+  </div>
+  <div id="workers-hire" class="tab-content">
+    <div class="highlight-box">Hire skilled artisans to increase production. Each worker costs upkeep every season.</div>
+    <div id="hire-list"><!-- filled by JS --></div>
+  </div>
+  <div id="workers-assign" class="tab-content">
+    <div class="highlight-box">Assign workers to tasks to boost resource gathering each turn.</div>
+    <div id="assign-list"><!-- filled by JS --></div>
+  </div>
+</div>
+
+<!-- Trade Market -->
+<div class="panel">
+  <div class="panel-title">🏪 Trade Market</div>
+  <div id="trade-list"><!-- filled by JS --></div>
+</div>
+
+<!-- Events / Chronicle -->
+<div class="panel" style="grid-column: 1 / -1;">
+  <div class="panel-title">📜 Kingdom Chronicle</div>
+  <div class="event-log" id="event-log"><!-- filled by JS --></div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ═══════════════════ BUILD ═══════════════════ -->
+
+<div id="screen-build" class="screen">
+  <div class="build-layout">
+
+```
+<!-- Palette -->
+<div>
+  <div class="panel">
+    <div class="panel-title">🧱 Building Blocks</div>
+    <div id="palette-list"><!-- filled by JS --></div>
+  </div>
+  <div class="panel" style="margin-top:12px;">
+    <div class="panel-title">🔨 Tools</div>
+    <div class="palette-item" id="tool-erase" onclick="selectTool('erase')">
+      <span class="palette-icon">🗑️</span>
+      <div><div class="palette-name">Erase</div><div class="palette-cost">Remove block</div></div>
+    </div>
+    <div class="palette-item" onclick="clearGrid()">
+      <span class="palette-icon">💣</span>
+      <div><div class="palette-name">Clear All</div><div class="palette-cost">Start over</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Grid -->
+<div class="castle-grid-wrap">
+  <div style="font-family:'Cinzel',serif; font-size:13px; color:var(--stone-light); letter-spacing:0.2em; margin-bottom:8px; text-transform:uppercase;">
+    Castle Design Grid
+  </div>
+  <div class="castle-grid" id="castle-grid" style="grid-template-columns: repeat(16, 52px); grid-template-rows: repeat(12, 52px);">
+    <!-- cells rendered by JS -->
+  </div>
+  <div class="castle-progress">
+    <div class="castle-progress-label">
+      <span>Construction Progress</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="castle-progress-bar"><div class="castle-progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <div style="display:flex; gap:10px; margin-top:10px;">
+    <button class="btn-secondary" onclick="switchPhase()">← Management</button>
+    <button class="btn-primary" onclick="checkVictory()" style="opacity:1; animation:none; padding:10px 28px; font-size:14px;">🏆 Submit Castle</button>
+  </div>
+</div>
+
+<!-- Info Panel -->
+<div>
+  <div class="panel">
+    <div class="panel-title">📐 Castle Stats</div>
+    <div class="build-stat"><span class="label">Total Tiles</span><span class="value" id="stat-total">0</span></div>
+    <div class="build-stat"><span class="label">Towers</span><span class="value" id="stat-towers">0</span></div>
+    <div class="build-stat"><span class="label">Walls</span><span class="value" id="stat-walls">0</span></div>
+    <div class="build-stat"><span class="label">Gates</span><span class="value" id="stat-gates">0</span></div>
+    <div class="build-stat"><span class="label">Rooms</span><span class="value" id="stat-rooms">0</span></div>
+    <div class="build-stat"><span class="label">Decorations</span><span class="value" id="stat-deco">0</span></div>
+    <div class="build-stat"><span class="label">💰 Gold Spent</span><span class="value" id="stat-gold-spent">0</span></div>
+    <div class="build-stat"><span class="label">🪨 Stone Spent</span><span class="value" id="stat-stone-spent">0</span></div>
+    <div class="build-stat"><span class="label">🪵 Wood Spent</span><span class="value" id="stat-wood-spent">0</span></div>
+    <div class="section-divider"></div>
+    <div class="build-stat"><span class="label">Defence Rating</span><span class="value" id="stat-defence">0</span></div>
+    <div class="build-stat"><span class="label">Prestige</span><span class="value" id="stat-prestige">0</span></div>
+  </div>
+
+  <div class="panel" style="margin-top:12px;">
+    <div class="panel-title">🎯 Selected Block</div>
+    <div id="selected-info" style="font-size:14px; color:var(--stone-light); font-style:italic;">Click a block type to select it, then click on the grid to place it.</div>
+  </div>
+
+  <div class="panel" style="margin-top:12px;">
+    <div class="panel-title">💡 Hints</div>
+    <div style="font-size:13px; color:var(--stone-light); line-height:1.7;" id="hint-text">
+      Build walls around your castle perimeter, place towers at corners for maximum defence, and don't forget a gatehouse!
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ═══════════════════ VICTORY ═══════════════════ -->
+
+<div id="screen-victory" class="screen">
+  <div style="font-size:80px; filter: drop-shadow(0 0 30px rgba(201,168,76,0.5));">👑</div>
+  <div class="victory-title">Your Castle Stands!</div>
+  <div style="font-family:'Crimson Pro'; font-style:italic; font-size:20px; color:var(--parchment-dark); max-width:500px; text-align:center; line-height:1.7;" id="victory-text">
+    A mighty fortress rises upon your lands...
+  </div>
+  <div class="panel" style="max-width:400px; width:90%;" id="victory-stats-el">
+  </div>
+  <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
+    <button class="btn-primary" onclick="startGame()" style="opacity:1; animation:none;">🔄 New Game</button>
+    <button class="btn-secondary" onclick="switchPhase()">← Continue Building</button>
+  </div>
+</div>
+
+<!-- Modal -->
+
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title">Confirm</div>
+    <div class="modal-body" id="modal-body">Are you sure?</div>
+    <div class="modal-actions" id="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" style="opacity:1;animation:none;" id="modal-confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ GAME LOGIC ═══════════════════ -->
+
+<script>
+// ── STATE ──
+const G = {
+  gold: 500, maxGold: 2000,
+  stone: 0, maxStone: 500,
+  wood: 0, maxWood: 500,
+  food: 50, maxFood: 200,
+  morale: 70, maxMorale: 100,
+  year: 1,
+  seasonIdx: 0,
+  seasons: ['Spring','Summer','Autumn','Winter'],
+  seasonIcons: ['🌸','☀️','🍂','❄️'],
+  workers: [],
+  assignments: { stone: 0, wood: 0, food: 0, gold: 0 },
+  events: [],
+  phase: 'manage', // 'manage' | 'build'
+  grid: {}, // key: "r,c" => block id
+  selectedBlock: null,
+  selectedTool: 'place',
+  goldSpent: 0,
+  stoneSpent: 0,
+  woodSpent: 0,
+};
+
+const SEASONS = ['Spring','Summer','Autumn','Winter'];
+const SEASON_ICONS = ['🌸','☀️','🍂','❄️'];
+
+const BLOCKS = [
+  { id:'wall',       name:'Stone Wall',      icon:'🧱', cat:'structure', goldCost:5,  stoneCost:3, woodCost:0, defence:2, prestige:1, desc:'Basic wall segment — the backbone of any castle.' },
+  { id:'tower',      name:'Round Tower',     icon:'🗼', cat:'structure', goldCost:30, stoneCost:15,woodCost:2, defence:8, prestige:5, desc:'Tall towers provide excellent sight lines and defence.' },
+  { id:'keep',       name:'Castle Keep',     icon:'🏰', cat:'structure', goldCost:80, stoneCost:30,woodCost:10,defence:12,prestige:15,desc:'The heart of your castle — the lord\'s residence and last bastion.' },
+  { id:'gate',       name:'Gatehouse',       icon:'🚪', cat:'gate',      goldCost:40, stoneCost:20,woodCost:8, defence:6, prestige:8, desc:'A fortified entrance. Every castle needs one.' },
+  { id:'battlement', name:'Battlements',     icon:'🏯', cat:'structure', goldCost:8,  stoneCost:4, woodCost:0, defence:3, prestige:2, desc:'Crenellated ramparts for archers to defend from.' },
+  { id:'barracks',   name:'Barracks',        icon:'⚔️', cat:'room',      goldCost:25, stoneCost:8, woodCost:12,defence:4, prestige:3, desc:'Houses your soldiers and improves garrison strength.' },
+  { id:'great_hall', name:'Great Hall',      icon:'🏛️', cat:'room',      goldCost:60, stoneCost:15,woodCost:20,defence:1, prestige:12,desc:'A grand feasting hall — the centre of noble life.' },
+  { id:'chapel',     name:'Chapel',          icon:'⛪', cat:'room',      goldCost:35, stoneCost:10,woodCost:8, defence:0, prestige:10,desc:'A place of worship — raises morale and prestige.' },
+  { id:'stable',     name:'Stables',         icon:'🐴', cat:'room',      goldCost:20, stoneCost:5, woodCost:15,defence:1, prestige:3, desc:'Houses horses for your knights and messengers.' },
+  { id:'moat',       name:'Moat',            icon:'💧', cat:'defence',   goldCost:10, stoneCost:0, woodCost:0, defence:5, prestige:2, desc:'A water barrier around your walls — very effective!' },
+  { id:'flag',       name:'Banner & Flag',   icon:'🚩', cat:'deco',      goldCost:5,  stoneCost:0, woodCost:2, defence:0, prestige:3, desc:'Show your heraldic colours atop your towers.' },
+  { id:'garden',     name:'Castle Garden',   icon:'🌿', cat:'deco',      goldCost:8,  stoneCost:0, woodCost:2, defence:0, prestige:4, desc:'A peaceful garden within the castle walls.' },
+  { id:'forge',      name:'Blacksmith Forge',icon:'⚒️', cat:'room',      goldCost:30, stoneCost:10,woodCost:8, defence:2, prestige:4, desc:'Produces weapons and armour. Essential for war.' },
+  { id:'well',       name:'Castle Well',     icon:'🪣', cat:'room',      goldCost:12, stoneCost:6, woodCost:2, defence:0, prestige:2, desc:'Provides water during siege conditions.' },
+  { id:'dungeon',    name:'Dungeon',         icon:'🔒', cat:'room',      goldCost:20, stoneCost:12,woodCost:3, defence:3, prestige:2, desc:'Holds prisoners below ground.' },
+  { id:'ground',     name:'Cobblestone',     icon:'⬛', cat:'ground',    goldCost:2,  stoneCost:1, woodCost:0, defence:0, prestige:0, desc:'Fill in courtyards and pathways.' },
+];
+
+const WORKERS_POOL = [
+  { id:'mason1',    name:'Robert Mason',    role:'Stonemason',   wage:15, stoneBonus:8,  woodBonus:0, foodBonus:0, goldBonus:0 },
+  { id:'logger1',   name:'Edmund Forester', role:'Woodcutter',   wage:10, stoneBonus:0,  woodBonus:10,foodBonus:0, goldBonus:0 },
+  { id:'farmer1',   name:'Agnes Grower',    role:'Farmer',       wage:8,  stoneBonus:0,  woodBonus:0, foodBonus:12,goldBonus:0 },
+  { id:'merchant1', name:'Thomas Broker',   role:'Merchant',     wage:20, stoneBonus:0,  woodBonus:0, foodBonus:0, goldBonus:20 },
+  { id:'mason2',    name:'William Quarry',  role:'Master Mason', wage:25, stoneBonus:15, woodBonus:0, foodBonus:0, goldBonus:5 },
+  { id:'logger2',   name:'John Timberman',  role:'Master Logger',wage:18, stoneBonus:0,  woodBonus:18,foodBonus:0, goldBonus:0 },
+  { id:'steward1',  name:'Lady Eleanor',    role:'Steward',      wage:22, stoneBonus:2,  woodBonus:2, foodBonus:5, goldBonus:15 },
+  { id:'guard1',    name:'Heinrich Guard',  role:'Sergeant',     wage:18, stoneBonus:0,  woodBonus:0, foodBonus:0, goldBonus:10 },
+];
+
+const TRADE_ITEMS = [
+  { id:'buy_stone_sm', name:'Stone (50)',    icon:'🪨', desc:'50 units of quarried stone',  goldCost:40,  stoneCost:-50, woodCost:0,   foodCost:0 },
+  { id:'buy_stone_lg', name:'Stone (200)',   icon:'🪨', desc:'200 units of quarried stone', goldCost:140, stoneCost:-200,woodCost:0,   foodCost:0 },
+  { id:'buy_wood_sm',  name:'Wood (50)',     icon:'🪵', desc:'50 units of timber',          goldCost:30,  stoneCost:0,   woodCost:-50, foodCost:0 },
+  { id:'buy_wood_lg',  name:'Wood (200)',    icon:'🪵', desc:'200 units of timber',         goldCost:100, stoneCost:0,   woodCost:-200,foodCost:0 },
+  { id:'buy_food',     name:'Food (50)',     icon:'🍞', desc:'50 units of grain & provisions',goldCost:20, stoneCost:0,  woodCost:0,   foodCost:-50},
+  { id:'sell_stone',   name:'Sell Stone (50)',icon:'💰',desc:'Sell 50 stone for gold',       goldCost:-25, stoneCost:50,  woodCost:0,   foodCost:0 },
+  { id:'sell_wood',    name:'Sell Wood (50)', icon:'💰',desc:'Sell 50 wood for gold',        goldCost:-20, stoneCost:0,   woodCost:50,  foodCost:0 },
+];
+
+const HINTS = [
+  "Towers placed at corners provide maximum area coverage.",
+  "A Gatehouse is required to complete your castle!",
+  "Build walls around the perimeter before filling in the interior.",
+  "Gardens and Chapels boost prestige significantly.",
+  "The Great Hall and Keep are worth the high cost — they add massive prestige.",
+  "A moat around your outer walls dramatically improves defence.",
+  "Assign your best workers to the resources you need most.",
+  "Advance seasons in management to accumulate resources before building.",
+  "Stone is the most critical resource — buy extra before starting construction.",
+];
+
+let hintIdx = 0;
+
+// ── INIT ──
+function startGame() {
+  G.gold = 500; G.stone = 0; G.wood = 0; G.food = 50; G.morale = 70;
+  G.year = 1; G.seasonIdx = 0;
+  G.workers = [];
+  G.assignments = { stone: 0, wood: 0, food: 0, gold: 0 };
+  G.events = [];
+  G.grid = {};
+  G.selectedBlock = null;
+  G.selectedTool = 'place';
+  G.goldSpent = 0; G.stoneSpent = 0; G.woodSpent = 0;
+
+  addEvent("⚔️ Your reign begins. The land awaits your vision!", 'gold');
+  addEvent("🌸 Spring has arrived. Set your workers to gather resources.", 'neutral');
+
+  showScreen('manage');
+  document.getElementById('hud').style.display = 'flex';
+  renderAll();
+  rotateHint();
+  setInterval(rotateHint, 6000);
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  G.phase = (name === 'build') ? 'build' : (name === 'manage' ? 'manage' : G.phase);
+  document.getElementById('hud-phase').textContent =
+    name === 'build' ? 'BUILD MODE' :
+    name === 'manage' ? 'MANAGEMENT PHASE' : '';
+}
+
+function switchPhase() {
+  if (G.phase === 'manage') {
+    showScreen('build');
+    renderGrid();
+    renderPalette();
+    updateBuildStats();
+  } else {
+    showScreen('manage');
+    renderAll();
+  }
+}
+
+// ── RENDER ALL ──
+function renderAll() {
+  updateHud();
+  updateResourceBars();
+  updateSeasonDisplay();
+  renderWorkerList();
+  renderHireList();
+  renderAssignList();
+  renderTradeList();
+  updateIncomePreview();
+}
+
+function updateHud() {
+  document.getElementById('hud-gold').textContent = G.gold;
+  document.getElementById('hud-stone').textContent = G.stone;
+  document.getElementById('hud-wood').textContent = G.wood;
+  document.getElementById('hud-workers').textContent = G.workers.length;
+  document.getElementById('hud-season').textContent = SEASONS[G.seasonIdx];
+  document.getElementById('hud-year').textContent = G.year;
+}
+
+function updateResourceBars() {
+  const set = (id, val, max, barId, valId) => {
+    document.getElementById(barId).style.width = Math.min(100, (val/max)*100) + '%';
+    document.getElementById(valId).textContent = val + ' / ' + max;
+  };
+  set('gold',  G.gold,  G.maxGold,  'bar-gold',  'res-gold-val');
+  set('stone', G.stone, G.maxStone, 'bar-stone', 'res-stone-val');
+  set('wood',  G.wood,  G.maxWood,  'bar-wood',  'res-wood-val');
+  set('food',  G.food,  G.maxFood,  'bar-food',  'res-food-val');
+  set('morale',G.morale,G.maxMorale,'bar-morale','res-morale-val');
+}
+
+function updateSeasonDisplay() {
+  const s = SEASONS[G.seasonIdx], i = SEASON_ICONS[G.seasonIdx];
+  document.getElementById('season-icon').textContent = i;
+  document.getElementById('season-name-display').textContent = s;
+  document.getElementById('season-year-display').textContent = `Year ${G.year} of your Reign`;
+  document.getElementById('manage-season-label').textContent = `${s} — Year ${G.year}`;
+}
+
+function updateIncomePreview() {
+  const inc = calcIncome();
+  document.getElementById('income-preview').textContent = `+${inc.gold} 💰/turn`;
+}
+
+function calcIncome() {
+  let gold = 35, stone = 0, wood = 0, food = 5;
+  const mult = getSeasonMult();
+  for (const w of G.workers) {
+    const wp = WORKERS_POOL.find(x => x.id === w.poolId);
+    if (!wp) continue;
+    if (w.assign === 'stone') stone += wp.stoneBonus;
+    else if (w.assign === 'wood') wood += wp.woodBonus;
+    else if (w.assign === 'food') food += wp.foodBonus;
+    else if (w.assign === 'gold') gold += wp.goldBonus;
+    gold -= wp.wage;
+  }
+  gold = Math.round(gold * mult.gold);
+  stone = Math.round(stone * mult.stone);
+  wood = Math.round(wood * mult.wood);
+  food = Math.round(food * mult.food);
+  return { gold, stone, wood, food };
+}
+
+function getSeasonMult() {
+  const s = G.seasonIdx;
+  if (s === 0) return { gold:1.0, stone:1.1, wood:1.1, food:1.2 }; // Spring
+  if (s === 1) return { gold:1.1, stone:1.2, wood:1.2, food:1.3 }; // Summer
+  if (s === 2) return { gold:1.0, stone:0.9, wood:1.0, food:0.8 }; // Autumn
+  return          { gold:0.8, stone:0.6, wood:0.5, food:0.4 };     // Winter
+}
+
+// ── ADVANCE TURN ──
+function advanceTurn() {
+  const inc = calcIncome();
+
+  // apply resources
+  G.gold  = Math.min(G.maxGold,  Math.max(0, G.gold  + inc.gold));
+  G.stone = Math.min(G.maxStone, Math.max(0, G.stone + inc.stone));
+  G.wood  = Math.min(G.maxWood,  Math.max(0, G.wood  + inc.wood));
+  G.food  = Math.min(G.maxFood,  Math.max(0, G.food  + inc.food));
+
+  // food consumption
+  const eat = G.workers.length * 2 + 5;
+  G.food = Math.max(0, G.food - eat);
+
+  // morale
+  if (G.food < 10) { G.morale = Math.max(0, G.morale - 15); addEvent('🍞 Your people go hungry! Morale falls.','bad'); }
+  else if (G.food > 80) { G.morale = Math.min(100, G.morale + 5); }
+
+  // log
+  const parts = [];
+  if (inc.gold > 0) parts.push(`+${inc.gold}💰`);
+  if (inc.stone > 0) parts.push(`+${inc.stone}🪨`);
+  if (inc.wood > 0) parts.push(`+${inc.wood}🪵`);
+  if (inc.food > 0) parts.push(`+${inc.food}🍞`);
+  if (parts.length) addEvent(`📅 ${SEASONS[G.seasonIdx]}: ${parts.join(' ')} gathered`, 'good');
+
+  // random event
+  maybeRandomEvent();
+
+  // advance season
+  G.seasonIdx = (G.seasonIdx + 1) % 4;
+  if (G.seasonIdx === 0) G.year++;
+
+  updateHud();
+  updateResourceBars();
+  updateSeasonDisplay();
+  updateIncomePreview();
+}
+
+function maybeRandomEvent() {
+  if (Math.random() > 0.35) return;
+  const events = [
+    { t:"🌧️ Heavy rains slow quarrying. -10 stone.", fn:()=>{ G.stone=Math.max(0,G.stone-10); }, type:'bad' },
+    { t:"🔥 A fire in the woodcutter's camp! -15 wood.", fn:()=>{ G.wood=Math.max(0,G.wood-15); }, type:'bad' },
+    { t:"💎 A merchant caravan arrives! +60 gold.", fn:()=>{ G.gold=Math.min(G.maxGold,G.gold+60); }, type:'good' },
+    { t:"🌾 A bountiful harvest! +30 food.", fn:()=>{ G.food=Math.min(G.maxFood,G.food+30); }, type:'good' },
+    { t:"⚔️ Bandits raid the quarry! -20 stone.", fn:()=>{ G.stone=Math.max(0,G.stone-20); }, type:'bad' },
+    { t:"🎉 A festival lifts spirits! +10 morale.", fn:()=>{ G.morale=Math.min(100,G.morale+10); }, type:'good' },
+    { t:"🌟 A skilled craftsman joins your workforce! +50 gold reward.", fn:()=>{ G.gold=Math.min(G.maxGold,G.gold+50); }, type:'gold' },
+    { t:"❄️ Early frost! Food stores diminish. -15 food.", fn:()=>{ G.food=Math.max(0,G.food-15); }, type:'bad' },
+  ];
+  const ev = events[Math.floor(Math.random()*events.length)];
+  ev.fn();
+  addEvent(ev.t, ev.type);
+}
+
+// ── WORKERS ──
+function renderWorkerList() {
+  const el = document.getElementById('worker-list-el');
+  if (!G.workers.length) {
+    el.innerHTML = '<div style="color:var(--stone);font-style:italic;font-size:13px;padding:10px 0;">No workers hired yet. Visit the Hire tab.</div>';
+    return;
+  }
+  el.innerHTML = G.workers.map(w => {
+    const wp = WORKERS_POOL.find(x => x.id === w.poolId);
+    return `<div class="worker-item">
+      <div>
+        <div class="worker-name">${wp.name}</div>
+        <div class="worker-role">${wp.role}</div>
+      </div>
+      <div class="worker-stat">-${wp.wage}💰/season</div>
+      <div class="worker-status ${w.assign ? 'busy' : 'idle'}">${w.assign ? '⚒ ' + w.assign : '· Idle'}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderHireList() {
+  const el = document.getElementById('hire-list');
+  const available = WORKERS_POOL.filter(wp => !G.workers.find(w => w.poolId === wp.id));
+  if (!available.length) {
+    el.innerHTML = '<div style="color:var(--stone);font-style:italic;font-size:13px;">All workers hired!</div>';
+    return;
+  }
+  el.innerHTML = available.map(wp => `
+    <div class="hire-row">
+      <div>
+        <div class="hire-name">${wp.name}</div>
+        <div class="hire-role">${wp.role}</div>
+      </div>
+      <span class="hire-cost">-${wp.wage}💰/season</span>
+      <button class="btn-secondary" style="font-size:11px; padding:5px 12px;" onclick="hireWorker('${wp.id}')">Hire</button>
+    </div>
+  `).join('');
+}
+
+function renderAssignList() {
+  const el = document.getElementById('assign-list');
+  if (!G.workers.length) {
+    el.innerHTML = '<div style="color:var(--stone);font-style:italic;font-size:13px;">No workers to assign.</div>';
+    return;
+  }
+  el.innerHTML = G.workers.map(w => {
+    const wp = WORKERS_POOL.find(x => x.id === w.poolId);
+    const opts = ['stone','wood','food','gold'].map(task =>
+      `<option value="${task}" ${w.assign===task?'selected':''}>${task.charAt(0).toUpperCase()+task.slice(1)}</option>`
+    ).join('');
+    return `<div class="hire-row">
+      <div>
+        <div class="hire-name">${wp.name}</div>
+        <div class="hire-role">${wp.role}</div>
+      </div>
+      <select style="background:#1a1408;border:1px solid var(--stone);color:var(--parchment);padding:4px 8px;font-family:'Cinzel',serif;font-size:12px;"
+        onchange="assignWorker('${w.id}', this.value)">
+        <option value="">-- Idle --</option>
+        ${opts}
+      </select>
+      <button class="btn-danger" style="font-size:11px; padding:5px 10px; margin-left:6px;" onclick="fireWorker('${w.id}')">Fire</button>
+    </div>`;
+  }).join('');
+}
+
+function hireWorker(poolId) {
+  const wp = WORKERS_POOL.find(x => x.id === poolId);
+  const hireCost = wp.wage * 3;
+  if (G.gold < hireCost) { notify(`Not enough gold! Need ${hireCost}💰 to hire.`, 'error'); return; }
+  G.gold -= hireCost;
+  G.workers.push({ id: 'w_' + Date.now(), poolId, assign: '' });
+  addEvent(`👷 ${wp.name} (${wp.role}) has been hired for ${hireCost}💰.`, 'good');
+  renderAll();
+  notify(`${wp.name} hired!`, 'success');
+}
+
+function fireWorker(wId) {
+  const idx = G.workers.findIndex(w => w.id === wId);
+  if (idx < 0) return;
+  const wp = WORKERS_POOL.find(x => x.id === G.workers[idx].poolId);
+  G.workers.splice(idx, 1);
+  addEvent(`👋 ${wp.name} has left your service.`, 'neutral');
+  renderAll();
+}
+
+function assignWorker(wId, task) {
+  const w = G.workers.find(x => x.id === wId);
+  if (w) { w.assign = task; updateIncomePreview(); }
+}
+
+// ── TRADE ──
+function renderTradeList() {
+  const el = document.getElementById('trade-list');
+  el.innerHTML = TRADE_ITEMS.map(item => {
+    const canAfford = (item.goldCost > 0 && G.gold >= item.goldCost) ||
+                      (item.stoneCost > 0 && G.stone >= item.stoneCost) ||
+                      (item.woodCost > 0 && G.wood >= item.woodCost) ||
+                      item.goldCost <= 0;
+    const disabled = !canAfford ? 'disabled' : '';
+    return `<div class="trade-item ${disabled}" onclick="executeTrade('${item.id}')">
+      <div class="trade-icon">${item.icon}</div>
+      <div class="trade-info">
+        <div class="trade-name">${item.name}</div>
+        <div class="trade-desc">${item.desc}</div>
+      </div>
+      <div class="trade-cost">
+        ${item.goldCost > 0 ? item.goldCost+'💰' : ''}
+        ${item.stoneCost > 0 ? item.stoneCost+'🪨' : ''}
+        ${item.woodCost > 0 ? item.woodCost+'🪵' : ''}
+        ${item.goldCost < 0 ? 'Earn '+(Math.abs(item.goldCost))+'💰' : ''}
+        <span>${item.goldCost > 0 ? 'Cost' : 'Sell'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function executeTrade(itemId) {
+  const item = TRADE_ITEMS.find(x => x.id === itemId);
+  if (!item) return;
+  // Check costs
+  if (item.goldCost > 0 && G.gold < item.goldCost) { notify('Not enough gold!', 'error'); return; }
+  if (item.stoneCost > 0 && G.stone < item.stoneCost) { notify('Not enough stone!', 'error'); return; }
+  if (item.woodCost > 0 && G.wood < item.woodCost) { notify('Not enough wood!', 'error'); return; }
+  // Apply
+  G.gold  = Math.max(0, Math.min(G.maxGold,  G.gold  - item.goldCost));
+  G.stone = Math.max(0, Math.min(G.maxStone, G.stone - item.stoneCost));
+  G.wood  = Math.max(0, Math.min(G.maxWood,  G.wood  - item.woodCost));
+  G.food  = Math.max(0, Math.min(G.maxFood,  G.food  - (item.foodCost||0)));
+  addEvent(`🏪 Traded: ${item.name}`, 'neutral');
+  renderAll();
+  notify(item.name + ' — done!', 'success');
+}
+
+// ── EVENTS ──
+function addEvent(text, type = 'neutral') {
+  G.events.unshift({ text, type, time: `${SEASONS[G.seasonIdx]} Y${G.year}` });
+  if (G.events.length > 40) G.events.pop();
+  const el = document.getElementById('event-log');
+  if (el) {
+    el.innerHTML = G.events.slice(0,20).map(e =>
+      `<div class="event-entry ${e.type}"><span style="color:var(--stone);font-size:11px;">[${e.time}]</span> ${e.text}</div>`
+    ).join('');
+  }
+}
+
+// ── BUILD GRID ──
+const GRID_ROWS = 12, GRID_COLS = 16;
+
+function renderGrid() {
+  const grid = document.getElementById('castle-grid');
+  grid.innerHTML = '';
+  for (let r = 0; r < GRID_ROWS; r++) {
+    for (let c = 0; c < GRID_COLS; c++) {
+      const key = `${r},${c}`;
+      const blockId = G.grid[key];
+      const block = blockId ? BLOCKS.find(b => b.id === blockId) : null;
+      const cell = document.createElement('div');
+      cell.className = 'grid-cell' + (block ? ' placed' : '') + (r === GRID_ROWS-1 ? ' ground' : '');
+      cell.dataset.r = r;
+      cell.dataset.c = c;
+      cell.innerHTML = block ? block.icon : (r === GRID_ROWS-1 ? '🌿' : '');
+      if (block) cell.innerHTML += `<span class="cell-tooltip">${block.name}</span>`;
+      cell.addEventListener('click', () => onCellClick(r, c));
+      cell.addEventListener('mouseenter', (e) => { if (e.buttons === 1) onCellClick(r, c); });
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function onCellClick(r, c) {
+  const key = `${r},${c}`;
+  if (G.selectedTool === 'erase') {
+    if (G.grid[key]) {
+      const block = BLOCKS.find(b => b.id === G.grid[key]);
+      // Refund 50%
+      G.gold  = Math.min(G.maxGold,  G.gold  + Math.floor(block.goldCost  * 0.5));
+      G.stone = Math.min(G.maxStone, G.stone + Math.floor(block.stoneCost * 0.5));
+      G.wood  = Math.min(G.maxWood,  G.wood  + Math.floor(block.woodCost  * 0.5));
+      G.goldSpent  = Math.max(0, G.goldSpent  - block.goldCost);
+      G.stoneSpent = Math.max(0, G.stoneSpent - block.stoneCost);
+      G.woodSpent  = Math.max(0, G.woodSpent  - block.woodCost);
+      delete G.grid[key];
+      updateHud();
+    }
+  } else if (G.selectedBlock) {
+    if (G.grid[key]) return; // already placed
+    const block = BLOCKS.find(b => b.id === G.selectedBlock);
+    if (!block) return;
+    if (G.gold  < block.goldCost)  { notify('Not enough gold!',  'error'); return; }
+    if (G.stone < block.stoneCost) { notify('Not enough stone!', 'error'); return; }
+    if (G.wood  < block.woodCost)  { notify('Not enough wood!',  'error'); return; }
+    G.gold  -= block.goldCost;
+    G.stone -= block.stoneCost;
+    G.wood  -= block.woodCost;
+    G.goldSpent  += block.goldCost;
+    G.stoneSpent += block.stoneCost;
+    G.woodSpent  += block.woodCost;
+    G.grid[key] = G.selectedBlock;
+    updateHud();
+  }
+  // Update the single cell without full re-render
+  const idx = r * GRID_COLS + c;
+  const cell = document.getElementById('castle-grid').children[idx];
+  if (cell) {
+    const blockId = G.grid[key];
+    const block = blockId ? BLOCKS.find(b => b.id === blockId) : null;
+    cell.className = 'grid-cell' + (block ? ' placed' : '') + (r === GRID_ROWS-1 ? ' ground' : '');
+    cell.innerHTML = block ? block.icon + `<span class="cell-tooltip">${block.name}</span>` : (r === GRID_ROWS-1 ? '🌿' : '');
+  }
+  updateBuildStats();
+}
+
+function renderPalette() {
+  const el = document.getElementById('palette-list');
+  const cats = ['structure','gate','room','defence','ground','deco'];
+  const catLabels = { structure:'Fortifications', gate:'Entrances', room:'Rooms', defence:'Defences', ground:'Ground', deco:'Decoration' };
+  let html = '';
+  cats.forEach(cat => {
+    const items = BLOCKS.filter(b => b.cat === cat);
+    if (!items.length) return;
+    html += `<div style="font-size:10px;letter-spacing:0.15em;color:var(--stone);text-transform:uppercase;padding:6px 0 4px;border-top:1px solid rgba(139,125,107,0.2);margin-top:4px;">${catLabels[cat]}</div>`;
+    items.forEach(b => {
+      const sel = G.selectedBlock === b.id ? 'selected' : '';
+      html += `<div class="palette-item ${sel}" id="pal-${b.id}" onclick="selectBlock('${b.id}')">
+        <span class="palette-icon">${b.icon}</span>
+        <div>
+          <div class="palette-name">${b.name}</div>
+          <div class="palette-cost">${b.goldCost?b.goldCost+'💰 ':''} ${b.stoneCost?b.stoneCost+'🪨 ':''} ${b.woodCost?b.woodCost+'🪵':''}</div>
+        </div>
+      </div>`;
+    });
+  });
+  el.innerHTML = html;
+}
+
+function selectBlock(id) {
+  G.selectedBlock = id;
+  G.selectedTool = 'place';
+  document.getElementById('tool-erase').classList.remove('selected');
+  document.querySelectorAll('.palette-item').forEach(el => el.classList.remove('selected'));
+  const el = document.getElementById('pal-' + id);
+  if (el) el.classList.add('selected');
+  const block = BLOCKS.find(b => b.id === id);
+  if (block) {
+    document.getElementById('selected-info').innerHTML =
+      `<strong style="color:var(--parchment)">${block.icon} ${block.name}</strong><br>
+      <span style="color:var(--stone-light); font-style:italic; font-size:13px;">${block.desc}</span><br><br>
+      <span style="font-family:'Cinzel',serif; font-size:12px; color:var(--gold);">
+        ${block.goldCost?'💰 '+block.goldCost+' gold  ':''}
+        ${block.stoneCost?'🪨 '+block.stoneCost+' stone  ':''}
+        ${block.woodCost?'🪵 '+block.woodCost+' wood':''}
+      </span><br>
+      <span style="font-size:12px; color:var(--stone-light);">Defence: +${block.defence}  Prestige: +${block.prestige}</span>`;
+  }
+}
+
+function selectTool(tool) {
+  G.selectedTool = tool;
+  G.selectedBlock = null;
+  document.querySelectorAll('.palette-item').forEach(el => el.classList.remove('selected'));
+  if (tool === 'erase') {
+    document.getElementById('tool-erase').classList.add('selected');
+    document.getElementById('selected-info').innerHTML = '<span style="color:var(--stone-light)">Click cells to remove blocks (50% refund).</span>';
+  }
+}
+
+function clearGrid() {
+  openModal('Clear the Grid?', 'This will demolish your entire castle design and refund 50% of resources.', () => {
+    // Refund 50%
+    for (const key in G.grid) {
+      const block = BLOCKS.find(b => b.id === G.grid[key]);
+      if (block) {
+        G.gold  = Math.min(G.maxGold,  G.gold  + Math.floor(block.goldCost  * 0.5));
+        G.stone = Math.min(G.maxStone, G.stone + Math.floor(block.stoneCost * 0.5));
+        G.wood  = Math.min(G.maxWood,  G.wood  + Math.floor(block.woodCost  * 0.5));
+      }
+    }
+    G.grid = {};
+    G.goldSpent = 0; G.stoneSpent = 0; G.woodSpent = 0;
+    renderGrid();
+    updateBuildStats();
+    updateHud();
+  });
+}
+
+function updateBuildStats() {
+  const blocks = Object.values(G.grid);
+  const count = (cat) => blocks.filter(id => BLOCKS.find(b=>b.id===id)?.cat === cat).length;
+  const sum = (prop) => blocks.reduce((a,id) => a + (BLOCKS.find(b=>b.id===id)?.[prop]||0), 0);
+
+  document.getElementById('stat-total').textContent   = blocks.length;
+  document.getElementById('stat-towers').textContent  = blocks.filter(id=>id==='tower'||id==='keep').length;
+  document.getElementById('stat-walls').textContent   = blocks.filter(id=>id==='wall'||id==='battlement').length;
+  document.getElementById('stat-gates').textContent   = blocks.filter(id=>id==='gate').length;
+  document.getElementById('stat-rooms').textContent   = count('room');
+  document.getElementById('stat-deco').textContent    = count('deco');
+  document.getElementById('stat-gold-spent').textContent  = G.goldSpent;
+  document.getElementById('stat-stone-spent').textContent = G.stoneSpent;
+  document.getElementById('stat-wood-spent').textContent  = G.woodSpent;
+  document.getElementById('stat-defence').textContent  = sum('defence');
+  document.getElementById('stat-prestige').textContent = sum('prestige');
+
+  // progress toward "complete" castle (min: 1 gate, 4 towers/keep, 20 walls)
+  const gates = blocks.filter(id=>id==='gate').length;
+  const towers = blocks.filter(id=>id==='tower'||id==='keep').length;
+  const walls = blocks.filter(id=>id==='wall'||id==='battlement').length;
+  const progress = Math.min(100, Math.round(
+    (Math.min(1,gates) * 30) + (Math.min(4,towers)/4 * 30) + (Math.min(20,walls)/20 * 40)
+  ));
+  document.getElementById('progress-fill').style.width = progress + '%';
+  document.getElementById('progress-pct').textContent = progress + '%';
+}
+
+// ── VICTORY ──
+function checkVictory() {
+  const blocks = Object.values(G.grid);
+  const gates = blocks.filter(id=>id==='gate').length;
+  const towers = blocks.filter(id=>id==='tower'||id==='keep').length;
+  const walls = blocks.filter(id=>id==='wall'||id==='battlement').length;
+
+  if (gates < 1) { notify('You need at least one Gatehouse!', 'error'); return; }
+  if (towers < 2) { notify('You need at least 2 towers or a Keep!', 'error'); return; }
+  if (walls < 10) { notify('You need at least 10 wall segments!', 'error'); return; }
+
+  const defence = blocks.reduce((a,id) => a + (BLOCKS.find(b=>b.id===id)?.defence||0), 0);
+  const prestige = blocks.reduce((a,id) => a + (BLOCKS.find(b=>b.id===id)?.prestige||0), 0);
+  const total = blocks.length;
+
+  const ratings = [
+    { min:0,   title:'Humble Outpost',   desc:'A small but sturdy fort guards your lands.' },
+    { min:30,  title:'Fortified Manor',  desc:'A proper fortification — your enemies take note.' },
+    { min:60,  title:'Noble Castle',     desc:'A fine castle rises, the pride of the region.' },
+    { min:100, title:'Mighty Fortress',  desc:'A formidable stronghold — bards will sing of its walls!' },
+    { min:150, title:'Grand Citadel',    desc:'An awe-inspiring citadel — your legend is secure.' },
+    { min:200, title:'Legendary Bastion',desc:'A monument to your greatness. Kings envy your seat of power!' },
+  ];
+  const rating = [...ratings].reverse().find(r => prestige >= r.min) || ratings[0];
+
+  showScreen('victory');
+  document.getElementById('victory-text').innerHTML =
+    `<em>"${rating.desc}"</em><br><br>Your castle, built over ${G.year} year${G.year>1?'s':''} of your reign, stands as testament to your vision and ambition.`;
+
+  document.getElementById('victory-stats-el').innerHTML = `
+    <div class="panel-title">🏆 Final Score</div>
+    <div class="build-stat"><span class="label">Castle Title</span><span class="value" style="color:var(--gold-light)">${rating.title}</span></div>
+    <div class="build-stat"><span class="label">Total Blocks</span><span class="value">${total}</span></div>
+    <div class="build-stat"><span class="label">Defence Rating</span><span class="value">${defence}</span></div>
+    <div class="build-stat"><span class="label">Prestige Score</span><span class="value">${prestige}</span></div>
+    <div class="build-stat"><span class="label">Seasons Ruled</span><span class="value">${(G.year-1)*4 + G.seasonIdx}</span></div>
+    <div class="build-stat"><span class="label">Workers Employed</span><span class="value">${G.workers.length}</span></div>
+    <div class="build-stat"><span class="label">Gold Remaining</span><span class="value">${G.gold}💰</span></div>
+  `;
+}
+
+// ── HELPERS ──
+function switchTab(tab, contentId) {
+  tab.closest('.panel').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tab.closest('.panel').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById(contentId).classList.add('active');
+}
+
+function rotateHint() {
+  const el = document.getElementById('hint-text');
+  if (el) {
+    el.style.opacity = '0';
+    setTimeout(() => {
+      el.textContent = HINTS[hintIdx % HINTS.length];
+      el.style.opacity = '1';
+      hintIdx++;
+    }, 300);
+  }
+}
+
+let notifTimer;
+function notify(msg, type='') {
+  const old = document.querySelector('.notification');
+  if (old) old.remove();
+  const el = document.createElement('div');
+  el.className = 'notification ' + type;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  if (notifTimer) clearTimeout(notifTimer);
+  notifTimer = setTimeout(() => el.remove(), 3200);
+}
+
+function openModal(title, body, onConfirm) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').textContent = body;
+  document.getElementById('modal-confirm').onclick = () => { closeModal(); onConfirm(); };
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+</script>
+
+</body>
+</html>
