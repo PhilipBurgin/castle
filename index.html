@@ -1,820 +1,434 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Castle Architect — Build Your Kingdom</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
+  /* ── SYSTEM FONT STACKS — no external dependencies ── */
   :root {
-    /* Light parchment palette */
-    --bg:           #f2e8d5;
-    --bg-deep:      #e8d9bc;
-    --bg-panel:     #faf4e8;
-    --bg-panel2:    #f0e6ce;
-    --border:       #c8ad80;
-    --border-light: #ddc99a;
-    --border-dark:  #a08050;
-    --ink:          #2c1f0e;
-    --ink-mid:      #5a3e22;
-    --ink-light:    #8b6840;
-    --gold:         #9a6d1a;
-    --gold-mid:     #b8881e;
-    --gold-bright:  #d4a82a;
-    --gold-bg:      rgba(180,130,30,0.1);
-    --red:          #8b2020;
-    --green:        #2a6030;
-    --blue:         #1e4a70;
-    --shadow:       rgba(60,30,0,0.15);
-    --shadow-deep:  rgba(60,30,0,0.3);
+    --font-display: 'Palatino Linotype', 'Palatino', 'Book Antiqua', 'Georgia', serif;
+    --font-body:    'Georgia', 'Times New Roman', serif;
+
+    /* Original dark stone palette */
+    --stone:        #8b7d6b;
+    --stone-light:  #c4b49a;
+    --stone-dark:   #4a3f35;
+    --gold:         #c9a84c;
+    --gold-light:   #f0d080;
+    --gold-dark:    #7a5c1e;
+    --parchment:    #f5ead6;
+    --parchment-dk: #e8d4b0;
+    --blood:        #8b1a1a;
+    --forest:       #2d5a27;
+    --ink:          #1a1410;
+    --bg-dark:      #0d0a07;
+    --bg-body:      #1a1410;
+    --bg-panel:     rgba(42,36,28,0.92);
+    --bg-panel2:    rgba(26,20,8,0.95);
+    --border:       rgba(139,125,107,0.5);
+    --border-gold:  rgba(201,168,76,0.3);
+    --shadow:       rgba(0,0,0,0.5);
+    --shadow-deep:  rgba(0,0,0,0.75);
   }
 
-- { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
-html, body {
-font-family: ‘Crimson Pro’, serif;
-background: var(–bg);
-color: var(–ink);
-min-height: 100vh;
-overflow-x: hidden;
-}
+  html, body {
+    font-family: var(--font-body);
+    background: var(--bg-body);
+    color: var(--parchment);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-/* ── SCREENS ── */
-.screen { display: none; min-height: 100vh; }
-.screen.active { display: flex; flex-direction: column; align-items: center; }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 80%, rgba(42,30,18,0.8) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 10%, rgba(20,30,50,0.5) 0%, transparent 55%),
+      #0d0a07;
+    z-index: -1;
+    pointer-events: none;
+  }
 
-/* ══════════════════════════════════
-TITLE SCREEN
-══════════════════════════════════ */
-#screen-title {
-justify-content: center;
-gap: 20px;
-padding: 40px 24px;
-background:
-radial-gradient(ellipse at 50% 0%, rgba(210,175,100,0.3) 0%, transparent 70%),
-var(–bg);
-}
+  .screen { display:none; min-height:100vh; }
+  .screen.active { display:flex; flex-direction:column; align-items:center; }
 
-.title-castle-icon {
-font-size: 72px;
-text-align: center;
-filter: drop-shadow(0 4px 12px var(–shadow-deep));
-animation: riseUp 1s ease-out forwards;
-opacity: 0;
-}
-@keyframes riseUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  /* ══ TITLE ══ */
+  #screen-title { justify-content:center; gap:20px; padding:40px 24px; }
 
-.title-main {
-font-family: ‘Cinzel’, serif;
-font-weight: 800;
-font-size: clamp(42px, 10vw, 80px);
-color: var(–gold);
-text-align: center;
-line-height: 1;
-letter-spacing: -0.01em;
-animation: riseUp 1s 0.2s ease-out forwards;
-opacity: 0;
-text-shadow: 0 2px 8px var(–shadow);
-}
+  @keyframes riseUp { from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);} }
+  @keyframes fadeIn { from{opacity:0;}to{opacity:1;} }
+  @keyframes glow   { from{filter:drop-shadow(0 0 8px rgba(201,168,76,0.3));}to{filter:drop-shadow(0 0 28px rgba(201,168,76,0.65));} }
 
-.title-sub {
-font-family: ‘Cinzel’, serif;
-font-weight: 400;
-font-size: clamp(12px, 2.5vw, 16px);
-letter-spacing: 0.35em;
-color: var(–ink-light);
-text-align: center;
-text-transform: uppercase;
-animation: fadeIn 1s 0.6s forwards;
-opacity: 0;
-}
+  .title-icon { font-size:80px; text-align:center; filter:drop-shadow(0 0 20px rgba(201,168,76,0.35)); animation:riseUp 1.2s ease-out forwards; opacity:0; }
 
-.title-desc {
-font-size: clamp(16px, 2.5vw, 20px);
-font-style: italic;
-color: var(–ink-mid);
-text-align: center;
-max-width: 480px;
-line-height: 1.7;
-animation: fadeIn 1s 1s forwards;
-opacity: 0;
-}
+  .title-main {
+    font-family: var(--font-display); font-weight:bold;
+    font-size: clamp(44px,11vw,88px); line-height:0.95; text-align:center;
+    background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 55%, var(--gold-dark) 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    filter: drop-shadow(0 2px 12px rgba(201,168,76,0.25));
+    animation: riseUp 1.2s 0.2s ease-out forwards; opacity:0;
+  }
 
-.title-divider {
-width: 200px;
-height: 1px;
-background: linear-gradient(90deg, transparent, var(–border), transparent);
-animation: fadeIn 1s 0.8s forwards;
-opacity: 0;
-}
+  .title-sub {
+    font-family: var(--font-display); font-size:clamp(11px,2vw,15px);
+    letter-spacing:0.4em; color:var(--stone-light); text-align:center; text-transform:uppercase;
+    animation:fadeIn 1s 0.7s forwards; opacity:0;
+  }
 
-/* ══════════════════════════════════
-BUTTONS
-══════════════════════════════════ */
-.btn-primary {
-font-family: ‘Cinzel’, serif;
-font-weight: 600;
-font-size: 16px;
-letter-spacing: 0.12em;
-padding: 14px 40px;
-background: linear-gradient(180deg, var(–gold-bright) 0%, var(–gold) 100%);
-color: #fff8ee;
-border: none;
-border-bottom: 3px solid var(–border-dark);
-cursor: pointer;
-border-radius: 3px;
-box-shadow: 0 4px 16px var(–shadow-deep);
-transition: all 0.18s;
-animation: fadeIn 1s 1.3s forwards;
-opacity: 0;
-touch-action: manipulation;
-}
-.btn-primary:hover, .btn-primary:active { transform: translateY(-1px); box-shadow: 0 6px 20px var(–shadow-deep); filter: brightness(1.05); }
-.btn-primary.no-anim { animation: none; opacity: 1; }
+  .title-rule { width:220px; height:1px; background:linear-gradient(90deg,transparent,var(--gold-dark),transparent); animation:fadeIn 1s 0.9s forwards; opacity:0; }
 
-.btn-secondary {
-font-family: ‘Cinzel’, serif;
-font-size: 13px;
-letter-spacing: 0.08em;
-padding: 9px 20px;
-background: var(–bg-panel);
-color: var(–ink-mid);
-border: 1px solid var(–border);
-border-bottom: 2px solid var(–border-dark);
-cursor: pointer;
-border-radius: 3px;
-transition: all 0.15s;
-touch-action: manipulation;
-}
-.btn-secondary:hover, .btn-secondary:active { background: var(–bg-deep); color: var(–ink); }
+  .title-desc {
+    font-size:clamp(15px,2.5vw,19px); font-style:italic; color:var(--parchment-dk);
+    text-align:center; max-width:500px; line-height:1.8;
+    animation:fadeIn 1s 1.1s forwards; opacity:0;
+  }
 
-.btn-danger {
-font-family: ‘Cinzel’, serif;
-font-size: 12px;
-padding: 7px 14px;
-background: rgba(139,32,32,0.08);
-color: var(–red);
-border: 1px solid rgba(139,32,32,0.3);
-border-radius: 3px;
-cursor: pointer;
-transition: all 0.15s;
-touch-action: manipulation;
-}
-.btn-danger:hover { background: rgba(139,32,32,0.15); }
+  /* ══ BUTTONS ══ */
+  .btn-primary {
+    font-family:var(--font-display); font-weight:bold; font-size:16px; letter-spacing:0.14em;
+    padding:14px 42px;
+    background:linear-gradient(135deg,var(--gold-dark) 0%,var(--gold) 50%,var(--gold-dark) 100%);
+    color:var(--ink); border:2px solid var(--gold-light); cursor:pointer; border-radius:2px;
+    clip-path:polygon(8px 0%,calc(100% - 8px) 0%,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0% calc(100% - 8px),0% 8px);
+    transition:all 0.2s; box-shadow:0 4px 20px rgba(201,168,76,0.3);
+    animation:fadeIn 1s 1.4s forwards; opacity:0; touch-action:manipulation;
+  }
+  .btn-primary:hover,.btn-primary:active { background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 50%,var(--gold) 100%); transform:translateY(-2px); box-shadow:0 8px 28px rgba(201,168,76,0.45); }
+  .btn-primary.no-anim { animation:none; opacity:1; }
 
-/* ══════════════════════════════════
-HUD
-══════════════════════════════════ */
-#hud {
-position: fixed;
-top: 0; left: 0; right: 0;
-z-index: 100;
-background: var(–bg-panel);
-border-bottom: 2px solid var(–border);
-padding: 0 16px;
-height: 56px;
-display: none;
-align-items: center;
-gap: 8px;
-box-shadow: 0 2px 12px var(–shadow);
-}
+  .btn-secondary {
+    font-family:var(--font-display); font-size:13px; letter-spacing:0.1em; padding:9px 22px;
+    background:transparent; color:var(--stone-light); border:1px solid var(--stone); border-radius:2px;
+    cursor:pointer; transition:all 0.15s; touch-action:manipulation;
+  }
+  .btn-secondary:hover,.btn-secondary:active { background:rgba(139,125,107,0.18); color:var(--parchment); border-color:var(--stone-light); }
 
-.hud-logo {
-font-family: ‘Cinzel’, serif;
-font-weight: 800;
-font-size: 17px;
-color: var(–gold);
-margin-right: 8px;
-white-space: nowrap;
-}
+  .btn-danger {
+    font-family:var(--font-display); font-size:12px; padding:7px 14px;
+    background:rgba(139,26,26,0.2); color:#e07070; border:1px solid rgba(139,26,26,0.5); border-radius:2px;
+    cursor:pointer; transition:all 0.15s; touch-action:manipulation;
+  }
+  .btn-danger:hover { background:rgba(139,26,26,0.4); }
 
-.hud-divider { width: 1px; height: 28px; background: var(–border-light); }
+  /* ══ HUD ══ */
+  #hud {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:linear-gradient(180deg,rgba(13,10,7,0.98) 0%,rgba(26,20,8,0.95) 100%);
+    border-bottom:1px solid var(--stone-dark); height:54px; padding:0 16px;
+    display:none; align-items:center; gap:8px; box-shadow:0 2px 16px var(--shadow-deep);
+  }
+  .hud-logo { font-family:var(--font-display); font-weight:bold; font-size:17px; color:var(--gold); white-space:nowrap; margin-right:6px; }
+  .hud-sep { width:1px; height:26px; background:var(--stone-dark); }
+  .hud-stat { display:flex; align-items:center; gap:5px; font-family:var(--font-display); font-size:13px; color:var(--parchment-dk); background:rgba(0,0,0,0.35); border:1px solid rgba(139,125,107,0.3); padding:5px 10px; border-radius:2px; white-space:nowrap; }
+  .hud-stat .val { color:var(--gold-light); font-weight:bold; }
+  .hud-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
+  .hud-phase { font-family:var(--font-display); font-size:11px; letter-spacing:0.18em; color:var(--stone-light); text-transform:uppercase; }
 
-.hud-stat {
-display: flex;
-align-items: center;
-gap: 5px;
-font-family: ‘Cinzel’, serif;
-font-size: 13px;
-color: var(–ink-mid);
-background: var(–bg-deep);
-border: 1px solid var(–border-light);
-padding: 5px 10px;
-border-radius: 3px;
-white-space: nowrap;
-}
-.hud-stat .val { color: var(–gold); font-weight: 600; }
-.hud-stat .icon { font-size: 14px; }
+  /* ══ PANEL ══ */
+  .panel {
+    background:linear-gradient(135deg,rgba(58,48,38,0.88),rgba(30,24,14,0.92));
+    border:1px solid var(--stone-dark); border-radius:3px; padding:18px;
+    position:relative; backdrop-filter:blur(3px); box-shadow:0 3px 16px var(--shadow);
+  }
+  .panel::before { content:''; position:absolute; inset:3px; border:1px solid var(--border-gold); pointer-events:none; border-radius:1px; }
+  .panel-title { font-family:var(--font-display); font-weight:bold; font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border-gold); }
 
-.hud-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-.hud-phase { font-family: ‘Cinzel’, serif; font-size: 11px; letter-spacing: 0.15em; color: var(–ink-light); text-transform: uppercase; }
+  /* ══ MANAGEMENT ══ */
+  #screen-manage { padding-top:54px; background:transparent; align-items:stretch; }
 
-/* ══════════════════════════════════
-PANEL
-══════════════════════════════════ */
-.panel {
-background: var(–bg-panel);
-border: 1px solid var(–border);
-border-radius: 4px;
-padding: 18px;
-box-shadow: 0 2px 8px var(–shadow);
-}
+  .manage-topbar {
+    background:linear-gradient(180deg,rgba(20,15,8,0.97),rgba(30,22,10,0.92));
+    border-bottom:1px solid var(--stone-dark); padding:12px 20px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  }
+  .season-badge { display:flex; align-items:center; gap:12px; }
+  .s-icon { font-size:32px; }
+  .s-name { font-family:var(--font-display); font-size:20px; font-weight:bold; color:var(--gold); }
+  .s-year { font-size:13px; color:var(--stone-light); }
+  .income-badge { background:rgba(201,168,76,0.08); border:1px solid var(--border-gold); border-radius:3px; padding:8px 18px; text-align:center; }
+  .i-val { font-family:var(--font-display); font-size:20px; font-weight:bold; color:var(--gold-light); }
+  .i-lbl { font-size:11px; color:var(--stone-light); }
 
-.panel-title {
-font-family: ‘Cinzel’, serif;
-font-weight: 600;
-font-size: 12px;
-letter-spacing: 0.2em;
-text-transform: uppercase;
-color: var(–gold);
-margin-bottom: 14px;
-padding-bottom: 10px;
-border-bottom: 1px solid var(–border-light);
-}
+  .manage-body { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; padding:16px; max-width:1100px; width:100%; margin:0 auto; align-items:start; }
+  @media(max-width:700px) { .manage-body{grid-template-columns:1fr;} }
+  @media(min-width:701px) and (max-width:900px) { .manage-body{grid-template-columns:1fr 1fr;} }
+  .full-row { grid-column:1/-1; }
 
-/* ══════════════════════════════════
-MANAGEMENT SCREEN — iPad layout
-══════════════════════════════════ */
-#screen-manage {
-padding-top: 56px;
-background: var(–bg);
-align-items: stretch;
-}
+  .rb-wrap { margin-bottom:11px; }
+  .rb-label { display:flex; justify-content:space-between; font-size:13px; color:var(--stone-light); margin-bottom:4px; }
+  .rb-label strong { color:var(--parchment); }
+  .rb-track { height:8px; background:rgba(0,0,0,0.4); border:1px solid rgba(139,125,107,0.25); border-radius:1px; overflow:hidden; }
+  .rb-fill  { height:100%; border-radius:1px; transition:width 0.5s ease; position:relative; }
+  .rb-fill::after { content:''; position:absolute; top:0; left:0; right:0; height:40%; background:rgba(255,255,255,0.15); }
 
-.manage-top-bar {
-background: var(–bg-panel2);
-border-bottom: 1px solid var(–border);
-padding: 14px 20px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-flex-wrap: wrap;
-gap: 12px;
-}
+  .advance-btn {
+    width:100%; padding:12px;
+    background:linear-gradient(135deg,rgba(122,92,30,0.5),rgba(80,55,10,0.7));
+    border:1px solid var(--gold-dark); border-radius:2px; color:var(--gold-light);
+    font-family:var(--font-display); font-size:14px; letter-spacing:0.12em; font-weight:bold;
+    cursor:pointer; margin-top:12px; transition:all 0.2s; text-transform:uppercase; touch-action:manipulation;
+  }
+  .advance-btn:hover,.advance-btn:active { background:linear-gradient(135deg,rgba(160,118,40,0.5),rgba(100,70,15,0.7)); box-shadow:0 0 16px rgba(201,168,76,0.2); }
 
-.season-badge {
-display: flex;
-align-items: center;
-gap: 12px;
-}
-.season-badge .icon { font-size: 32px; }
-.season-badge .name { font-family: ‘Cinzel’, serif; font-size: 20px; font-weight: 700; color: var(–ink); }
-.season-badge .year { font-size: 13px; color: var(–ink-light); }
+  .tabs { display:flex; gap:0; margin-bottom:12px; border-bottom:1px solid var(--border); }
+  .tab { font-family:var(--font-display); font-size:12px; letter-spacing:0.08em; padding:8px 15px; cursor:pointer; color:var(--stone-light); background:transparent; border:1px solid transparent; border-bottom:none; position:relative; bottom:-1px; border-radius:2px 2px 0 0; transition:all 0.15s; touch-action:manipulation; }
+  .tab:hover { color:var(--parchment); background:rgba(139,125,107,0.1); }
+  .tab.active { color:var(--gold); background:rgba(26,20,8,0.95); border-color:var(--border); border-bottom-color:rgba(26,20,8,0.95); }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
 
-.income-badge {
-background: var(–gold-bg);
-border: 1px solid var(–border);
-border-radius: 4px;
-padding: 8px 18px;
-text-align: center;
-}
-.income-badge .val { font-family: ‘Cinzel’, serif; font-size: 20px; font-weight: 700; color: var(–gold); }
-.income-badge .label { font-size: 12px; color: var(–ink-light); }
+  .worker-item { display:flex; align-items:center; justify-content:space-between; padding:9px 10px; border:1px solid rgba(139,125,107,0.2); border-radius:2px; margin-bottom:6px; background:rgba(0,0,0,0.22); transition:all 0.15s; }
+  .worker-item:hover { border-color:var(--border-gold); background:rgba(201,168,76,0.05); }
+  .w-name { font-size:14px; font-weight:bold; color:var(--parchment); }
+  .w-role { font-size:12px; color:var(--stone-light); font-style:italic; }
+  .w-wage { font-family:var(--font-display); font-size:12px; color:var(--gold); margin:0 8px; }
+  .w-status { font-size:11px; padding:3px 8px; border-radius:2px; }
+  .w-status.idle { color:#88cc88; background:rgba(85,136,85,0.12); border:1px solid rgba(85,136,85,0.35); }
+  .w-status.busy { color:var(--gold); background:rgba(201,168,76,0.1); border:1px solid var(--border-gold); }
 
-/* 3-column grid for iPad */
-.manage-body {
-display: grid;
-grid-template-columns: 1fr 1fr 1fr;
-grid-template-rows: auto auto;
-gap: 14px;
-padding: 16px;
-max-width: 1100px;
-width: 100%;
-margin: 0 auto;
-}
+  .hire-row { display:flex; align-items:center; justify-content:space-between; padding:9px 10px; border:1px solid rgba(139,125,107,0.2); border-radius:2px; margin-bottom:6px; background:rgba(0,0,0,0.2); }
+  .h-name { font-size:14px; font-weight:bold; color:var(--parchment); }
+  .h-role { font-size:12px; color:var(--stone-light); font-style:italic; }
+  .h-cost { font-family:var(--font-display); font-size:12px; color:var(--gold); margin-right:8px; }
 
-/* On small screens, collapse to 1 col */
-@media (max-width: 700px) {
-.manage-body { grid-template-columns: 1fr; }
-.manage-full-row { grid-column: 1 / -1 !important; }
-}
-@media (min-width: 701px) and (max-width: 900px) {
-.manage-body { grid-template-columns: 1fr 1fr; }
-}
+  .trade-item { display:flex; align-items:center; gap:10px; padding:9px 10px; border:1px solid rgba(139,125,107,0.2); border-radius:2px; margin-bottom:6px; background:rgba(0,0,0,0.2); cursor:pointer; transition:all 0.15s; touch-action:manipulation; }
+  .trade-item:hover,.trade-item:active { border-color:var(--gold-dark); background:rgba(201,168,76,0.08); }
+  .trade-item.disabled { opacity:0.38; cursor:not-allowed; pointer-events:none; }
+  .t-icon { font-size:20px; width:28px; text-align:center; }
+  .t-name { font-size:14px; font-weight:bold; color:var(--parchment); }
+  .t-desc { font-size:12px; color:var(--stone-light); font-style:italic; }
+  .t-cost { margin-left:auto; text-align:right; font-family:var(--font-display); font-size:13px; color:var(--gold); white-space:nowrap; }
+  .t-cost span { display:block; font-size:10px; color:var(--stone-light); font-family:var(--font-body); }
 
-.manage-full-row { grid-column: 1 / -1; }
+  .event-log { max-height:150px; overflow-y:auto; font-size:13px; line-height:1.9; }
+  .ev { padding:2px 0; border-bottom:1px solid rgba(139,125,107,0.1); animation:slideIn 0.3s ease; }
+  @keyframes slideIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}
+  .ev.good    { color:#88cc88; }
+  .ev.bad     { color:#cc7777; }
+  .ev.neutral { color:var(--stone-light); }
+  .ev.gold    { color:var(--gold-light); }
+  .ev .ts     { color:var(--stone); font-size:11px; }
 
-/* Resource bars */
-.res-bar-wrap { margin-bottom: 11px; }
-.res-bar-label { display: flex; justify-content: space-between; font-size: 13px; color: var(–ink-mid); margin-bottom: 4px; }
-.res-bar-label strong { color: var(–ink); }
-.res-bar { height: 9px; background: var(–bg-deep); border: 1px solid var(–border-light); border-radius: 2px; overflow: hidden; }
-.res-bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+  /* ══ BUILD ══ */
+  #screen-build { padding-top:54px; align-items:stretch; }
 
-/* Advance button */
-.advance-btn {
-width: 100%;
-padding: 13px;
-background: linear-gradient(180deg, var(–gold-bright), var(–gold));
-color: #fff8ee;
-border: none;
-border-bottom: 3px solid var(–border-dark);
-font-family: ‘Cinzel’, serif;
-font-size: 14px;
-letter-spacing: 0.12em;
-cursor: pointer;
-border-radius: 3px;
-margin-top: 12px;
-transition: all 0.18s;
-box-shadow: 0 3px 10px var(–shadow);
-touch-action: manipulation;
-}
-.advance-btn:hover, .advance-btn:active { filter: brightness(1.06); transform: translateY(-1px); }
+  .build-layout { display:grid; grid-template-columns:200px 1fr 210px; gap:14px; padding:14px; width:100%; max-width:1200px; margin:0 auto; align-items:start; }
+  @media(max-width:900px) { .build-layout{grid-template-columns:1fr;} }
 
-/* Tabs */
-.tabs { display: flex; gap: 0; margin-bottom: 14px; border-bottom: 2px solid var(–border); }
-.tab {
-font-family: ‘Cinzel’, serif;
-font-size: 12px;
-letter-spacing: 0.08em;
-padding: 8px 16px;
-cursor: pointer;
-color: var(–ink-light);
-background: transparent;
-border: 1px solid transparent;
-border-bottom: none;
-position: relative;
-bottom: -2px;
-border-radius: 3px 3px 0 0;
-transition: all 0.15s;
-touch-action: manipulation;
-}
-.tab:hover { color: var(–ink); background: var(–bg-deep); }
-.tab.active { color: var(–gold); background: var(–bg-panel); border-color: var(–border); border-bottom-color: var(–bg-panel); }
+  .pal-scroll { max-height:calc(100vh - 180px); overflow-y:auto; padding-right:2px; }
+  .pal-cat { font-size:10px; letter-spacing:0.15em; color:var(--stone); text-transform:uppercase; padding:8px 0 4px; border-top:1px solid rgba(139,125,107,0.18); margin-top:6px; }
+  .pal-cat:first-child { border-top:none; padding-top:0; margin-top:0; }
 
-.tab-content { display: none; }
-.tab-content.active { display: block; }
+  .palette-item { display:flex; align-items:center; gap:8px; padding:8px 9px; border:1px solid transparent; border-radius:2px; cursor:pointer; margin-bottom:3px; background:rgba(0,0,0,0.2); transition:all 0.12s; touch-action:manipulation; }
+  .palette-item:hover { border-color:var(--border); background:rgba(139,125,107,0.1); }
+  .palette-item.selected { border-color:var(--gold); background:rgba(201,168,76,0.1); }
+  .p-icon { font-size:20px; width:26px; text-align:center; }
+  .p-name { font-size:13px; font-weight:bold; color:var(--parchment); line-height:1.2; }
+  .p-cost { font-family:var(--font-display); font-size:10px; color:var(--gold); }
 
-/* Worker items */
-.worker-item {
-display: flex; align-items: center; justify-content: space-between;
-padding: 9px 10px; border: 1px solid var(–border-light);
-border-radius: 3px; margin-bottom: 6px; background: var(–bg-deep);
-transition: all 0.15s;
-}
-.worker-item:hover { border-color: var(–border); }
-.worker-name { font-size: 14px; font-weight: 600; color: var(–ink); }
-.worker-role { font-size: 12px; color: var(–ink-light); font-style: italic; }
-.worker-wage { font-family: ‘Cinzel’, serif; font-size: 12px; color: var(–gold); margin: 0 10px; }
-.w-status { font-size: 11px; padding: 3px 8px; border-radius: 2px; }
-.w-status.idle { color: var(–green); background: rgba(42,96,48,0.1); border: 1px solid rgba(42,96,48,0.3); }
-.w-status.busy { color: var(–gold); background: var(–gold-bg); border: 1px solid var(–border); }
+  .grid-wrap { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .grid-label { font-family:var(--font-display); font-size:12px; letter-spacing:0.2em; color:var(--stone-light); text-transform:uppercase; }
 
-/* Hire row */
-.hire-row {
-display: flex; align-items: center; justify-content: space-between;
-padding: 9px 10px; border: 1px solid var(–border-light);
-border-radius: 3px; margin-bottom: 6px; background: var(–bg-deep);
-}
-.hire-name { font-size: 14px; font-weight: 600; color: var(–ink); }
-.hire-role { font-size: 12px; color: var(–ink-light); font-style: italic; }
-.hire-cost { font-family: ‘Cinzel’, serif; font-size: 12px; color: var(–gold); margin-right: 8px; }
+  .castle-grid { display:grid; gap:2px; background:rgba(0,0,0,0.55); border:2px solid var(--stone-dark); border-radius:3px; padding:8px; box-shadow:0 6px 28px var(--shadow-deep); touch-action:none; }
 
-/* Trade items */
-.trade-item {
-display: flex; align-items: center; gap: 10px;
-padding: 9px 10px; border: 1px solid var(–border-light);
-border-radius: 3px; margin-bottom: 6px; background: var(–bg-deep);
-cursor: pointer; transition: all 0.15s;
-touch-action: manipulation;
-}
-.trade-item:hover, .trade-item:active { border-color: var(–gold-mid); background: var(–gold-bg); }
-.trade-item.disabled { opacity: 0.4; cursor: not-allowed; }
-.trade-icon { font-size: 20px; width: 28px; text-align: center; }
-.trade-name { font-size: 14px; font-weight: 600; color: var(–ink); }
-.trade-desc { font-size: 12px; color: var(–ink-light); font-style: italic; }
-.trade-cost-col { margin-left: auto; text-align: right; font-family: ‘Cinzel’, serif; font-size: 13px; color: var(–gold); white-space: nowrap; }
-.trade-cost-col span { display: block; font-size: 10px; color: var(–ink-light); font-family: ‘Crimson Pro’,serif; }
+  .grid-cell { width:48px; height:48px; background:rgba(20,14,8,0.75); border:1px solid rgba(74,63,53,0.4); border-radius:2px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; position:relative; transition:background 0.1s,transform 0.1s; user-select:none; touch-action:none; }
+  .grid-cell:hover { background:rgba(201,168,76,0.12); border-color:rgba(201,168,76,0.45); transform:scale(1.06); z-index:1; }
+  .grid-cell.placed { background:rgba(74,63,53,0.45); border-color:rgba(139,125,107,0.5); }
+  .grid-cell.ground { background:rgba(30,60,24,0.35); border-color:rgba(45,90,39,0.45); }
+  .cell-tip { display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:rgba(13,10,7,0.97); color:var(--parchment); padding:3px 8px; font-size:11px; border-radius:2px; border:1px solid var(--stone-dark); white-space:nowrap; font-family:var(--font-display); z-index:20; pointer-events:none; }
+  .grid-cell:hover .cell-tip { display:block; }
 
-/* Event log */
-.event-log { max-height: 160px; overflow-y: auto; font-size: 13px; line-height: 1.9; }
-.event-log::-webkit-scrollbar { width: 4px; }
-.event-log::-webkit-scrollbar-track { background: var(–bg-deep); }
-.event-log::-webkit-scrollbar-thumb { background: var(–border); border-radius: 2px; }
-.ev { padding: 2px 0; border-bottom: 1px solid var(–border-light); animation: slideIn 0.3s ease; }
-@keyframes slideIn { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
-.ev.good { color: var(–green); }
-.ev.bad { color: var(–red); }
-.ev.neutral { color: var(–ink-mid); }
-.ev.gold { color: var(–gold); }
-.ev .ts { color: var(–ink-light); font-size: 11px; }
+  .cp-wrap { width:100%; }
+  .cp-labels { display:flex; justify-content:space-between; font-family:var(--font-display); font-size:11px; color:var(--stone-light); margin-bottom:4px; }
+  .cp-track { height:7px; background:rgba(0,0,0,0.45); border:1px solid rgba(139,125,107,0.25); border-radius:2px; overflow:hidden; }
+  .cp-fill  { height:100%; background:linear-gradient(90deg,var(--gold-dark),var(--gold)); border-radius:2px; transition:width 0.5s; }
 
-/* ══════════════════════════════════
-BUILD SCREEN — iPad layout
-══════════════════════════════════ */
-#screen-build {
-padding-top: 56px;
-background: var(–bg);
-align-items: stretch;
-}
+  .bs { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(139,125,107,0.15); font-size:14px; }
+  .bs .lbl { color:var(--stone-light); }
+  .bs .val { font-family:var(--font-display); font-weight:bold; color:var(--gold-light); }
 
-.build-layout {
-display: grid;
-grid-template-columns: 200px 1fr 210px;
-gap: 14px;
-padding: 14px;
-width: 100%;
-max-width: 1200px;
-margin: 0 auto;
-align-items: start;
-}
+  .build-info-scroll { max-height:calc(100vh - 180px); overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+  .hint-box { background:rgba(201,168,76,0.07); border:1px solid var(--border-gold); border-radius:2px; padding:12px; font-size:13px; color:var(--stone-light); font-style:italic; line-height:1.65; transition:opacity 0.3s; }
+  .s-rule { width:100%; height:1px; background:linear-gradient(90deg,transparent,var(--gold-dark),transparent); margin:10px 0; }
 
-@media (max-width: 900px) {
-.build-layout { grid-template-columns: 1fr; }
-.castle-grid-wrap { order: -1; }
-}
+  /* ══ MODAL ══ */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.78); z-index:200; display:none; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+  .modal-overlay.open { display:flex; }
+  .modal-box { background:linear-gradient(135deg,#2a2018,#1a1408); border:1px solid var(--gold-dark); border-radius:4px; padding:32px; max-width:440px; width:90%; box-shadow:0 20px 60px var(--shadow-deep); animation:popIn 0.25s ease-out; position:relative; }
+  .modal-box::before { content:''; position:absolute; inset:4px; border:1px solid var(--border-gold); pointer-events:none; border-radius:2px; }
+  @keyframes popIn{from{opacity:0;transform:scale(0.93) translateY(14px);}to{opacity:1;transform:scale(1) translateY(0);}}
+  .m-title { font-family:var(--font-display); font-size:22px; font-weight:bold; color:var(--gold); margin-bottom:10px; }
+  .m-body  { color:var(--parchment-dk); font-size:15px; line-height:1.7; margin-bottom:22px; }
+  .m-actions { display:flex; gap:10px; justify-content:flex-end; }
 
-/* Palette */
-.palette-scroll { max-height: calc(100vh - 160px); overflow-y: auto; padding-right: 4px; }
-.palette-scroll::-webkit-scrollbar { width: 4px; }
-.palette-scroll::-webkit-scrollbar-track { background: var(–bg-deep); }
-.palette-scroll::-webkit-scrollbar-thumb { background: var(–border); border-radius: 2px; }
+  /* ══ NOTIFICATION ══ */
+  .notif { position:fixed; top:66px; right:16px; background:linear-gradient(135deg,rgba(42,36,28,0.98),rgba(26,22,14,0.98)); border:1px solid var(--stone-dark); border-left:3px solid var(--gold); padding:10px 16px; font-size:14px; color:var(--parchment); max-width:280px; border-radius:2px; box-shadow:0 4px 16px var(--shadow-deep); z-index:300; animation:notifIn 0.25s ease-out,notifOut 0.25s 2.7s ease-in forwards; }
+  .notif.error   { border-left-color:var(--blood)!important; }
+  .notif.success { border-left-color:#558855!important; }
+  @keyframes notifIn {from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+  @keyframes notifOut{from{opacity:1;}to{opacity:0;transform:translateX(20px);}}
 
-.pal-cat-label {
-font-size: 10px; letter-spacing: 0.15em; color: var(–ink-light);
-text-transform: uppercase; padding: 8px 0 4px;
-border-top: 1px solid var(–border-light); margin-top: 6px;
-}
-.pal-cat-label:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+  /* ══ VICTORY ══ */
+  #screen-victory { justify-content:center; gap:22px; text-align:center; padding:40px 24px; }
+  .v-icon  { font-size:72px; filter:drop-shadow(0 0 24px rgba(201,168,76,0.5)); animation:glow 2s infinite alternate; }
+  .v-title { font-family:var(--font-display); font-size:clamp(28px,6vw,54px); font-weight:bold; background:linear-gradient(180deg,var(--gold-light),var(--gold),var(--gold-dark)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:glow 2s infinite alternate; }
+  .v-desc  { font-size:clamp(15px,2.5vw,19px); font-style:italic; color:var(--parchment-dk); max-width:480px; line-height:1.75; }
 
-.palette-item {
-display: flex; align-items: center; gap: 8px;
-padding: 8px 9px; border: 1px solid transparent;
-border-radius: 3px; cursor: pointer; margin-bottom: 3px;
-background: var(–bg-deep); transition: all 0.12s;
-touch-action: manipulation;
-}
-.palette-item:hover { border-color: var(–border); background: var(–bg-panel); }
-.palette-item.selected { border-color: var(–gold-mid); background: var(–gold-bg); }
-.palette-item.locked { opacity: 0.35; cursor: not-allowed; }
-.pal-icon { font-size: 20px; width: 26px; text-align: center; }
-.pal-name { font-size: 13px; font-weight: 600; color: var(–ink); line-height: 1.2; }
-.pal-cost { font-family: ‘Cinzel’, serif; font-size: 10px; color: var(–gold); }
+  ::-webkit-scrollbar{width:5px;}
+  ::-webkit-scrollbar-track{background:rgba(0,0,0,0.3);}
+  ::-webkit-scrollbar-thumb{background:var(--stone-dark);border-radius:2px;}
 
-/* Grid */
-.castle-grid-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  select { background:rgba(26,20,8,0.9); border:1px solid var(--stone-dark); color:var(--parchment); padding:5px 8px; font-family:var(--font-display); font-size:12px; border-radius:2px; cursor:pointer; }
+  select:focus { outline:none; border-color:var(--gold-dark); }
 
-.grid-label {
-font-family: ‘Cinzel’, serif; font-size: 12px;
-letter-spacing: 0.2em; color: var(–ink-light);
-text-transform: uppercase;
-}
-
-.castle-grid {
-display: grid;
-gap: 2px;
-background: var(–bg-deep);
-border: 2px solid var(–border);
-border-radius: 4px;
-padding: 8px;
-box-shadow: 0 4px 20px var(–shadow-deep);
-/* iPad: cells will be sized dynamically */
-touch-action: none;
-}
-
-.grid-cell {
-width: 48px; height: 48px;
-background: rgba(255,255,255,0.4);
-border: 1px solid var(–border-light);
-border-radius: 2px;
-display: flex; align-items: center; justify-content: center;
-font-size: 24px; cursor: pointer;
-transition: background 0.1s, transform 0.1s;
-position: relative;
-user-select: none;
-touch-action: none;
-}
-.grid-cell:hover { background: rgba(180,130,30,0.12); border-color: var(–border); transform: scale(1.06); z-index:1; }
-.grid-cell.placed { background: rgba(200,173,128,0.25); border-color: var(–border); }
-.grid-cell.ground { background: rgba(42,96,48,0.12); border-color: rgba(42,96,48,0.3); }
-
-.cell-tip {
-display: none; position: absolute; bottom: calc(100% + 6px); left: 50%;
-transform: translateX(-50%);
-background: var(–ink); color: #fff8ee;
-padding: 3px 8px; font-size: 11px; border-radius: 3px;
-white-space: nowrap; font-family: ‘Cinzel’, serif; z-index: 20;
-pointer-events: none;
-}
-.grid-cell:hover .cell-tip { display: block; }
-
-/* Progress */
-.castle-progress { width: 100%; }
-.cp-label { display: flex; justify-content: space-between; font-family: ‘Cinzel’, serif; font-size: 11px; color: var(–ink-light); margin-bottom: 4px; }
-.cp-bar { height: 7px; background: var(–bg-deep); border: 1px solid var(–border-light); border-radius: 3px; overflow: hidden; }
-.cp-fill { height: 100%; background: linear-gradient(90deg, var(–gold), var(–gold-bright)); border-radius: 3px; transition: width 0.5s; }
-
-/* Build stats */
-.build-stat { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(–border-light); font-size: 14px; }
-.build-stat .label { color: var(–ink-mid); }
-.build-stat .value { font-family: ‘Cinzel’, serif; font-weight: 600; color: var(–gold); }
-
-/* Build info */
-.build-info-scroll { max-height: calc(100vh - 160px); overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
-.build-info-scroll::-webkit-scrollbar { width: 4px; }
-.build-info-scroll::-webkit-scrollbar-track { background: var(–bg-deep); }
-.build-info-scroll::-webkit-scrollbar-thumb { background: var(–border); border-radius: 2px; }
-
-/* Hint box */
-.hint-box { background: var(–gold-bg); border: 1px solid var(–border); border-radius: 3px; padding: 12px; font-size: 13px; color: var(–ink-mid); font-style: italic; line-height: 1.6; transition: opacity 0.3s; }
-
-/* ══════════════════════════════════
-MODAL
-══════════════════════════════════ */
-.modal-overlay {
-position: fixed; inset: 0;
-background: rgba(44,31,14,0.6);
-z-index: 200; display: none;
-align-items: center; justify-content: center;
-backdrop-filter: blur(4px);
-}
-.modal-overlay.open { display: flex; }
-.modal-box {
-background: var(–bg-panel);
-border: 1px solid var(–border);
-border-radius: 6px;
-padding: 32px;
-max-width: 440px; width: 90%;
-box-shadow: 0 20px 60px var(–shadow-deep);
-animation: popIn 0.25s ease-out;
-}
-@keyframes popIn { from { opacity:0; transform:scale(0.94) translateY(12px); } to { opacity:1; transform:scale(1) translateY(0); } }
-.modal-title { font-family: ‘Cinzel’, serif; font-size: 22px; font-weight: 700; color: var(–ink); margin-bottom: 10px; }
-.modal-body { color: var(–ink-mid); font-size: 16px; line-height: 1.7; margin-bottom: 24px; }
-.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-
-/* ══════════════════════════════════
-NOTIFICATION
-══════════════════════════════════ */
-.notification {
-position: fixed; top: 68px; right: 16px;
-background: var(–bg-panel);
-border-left: 3px solid var(–gold-mid);
-border: 1px solid var(–border);
-border-left-width: 3px;
-border-left-color: var(–gold-mid);
-padding: 10px 16px;
-font-size: 14px; color: var(–ink);
-max-width: 280px; border-radius: 3px;
-box-shadow: 0 4px 16px var(–shadow-deep);
-z-index: 300;
-animation: notifIn 0.25s ease-out, notifOut 0.25s 2.7s ease-in forwards;
-}
-.notification.error { border-left-color: var(–red); }
-.notification.success { border-left-color: var(–green); }
-@keyframes notifIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
-@keyframes notifOut { from { opacity:1; } to { opacity:0; transform:translateX(20px); } }
-
-/* ══════════════════════════════════
-VICTORY
-══════════════════════════════════ */
-#screen-victory {
-justify-content: center; gap: 22px;
-text-align: center; padding: 40px 24px;
-background: radial-gradient(ellipse at 50% 30%, rgba(210,175,100,0.25) 0%, transparent 70%), var(–bg);
-}
-.victory-icon { font-size: 72px; filter: drop-shadow(0 4px 12px var(–shadow-deep)); }
-.victory-title { font-family: ‘Cinzel’, serif; font-size: clamp(28px, 6vw, 52px); font-weight: 800; color: var(–gold); }
-.victory-desc { font-size: clamp(16px,2.5vw,20px); font-style: italic; color: var(–ink-mid); max-width: 480px; line-height: 1.7; }
-
-/* Scrollbar global */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(–bg-deep); }
-::-webkit-scrollbar-thumb { background: var(–border); border-radius: 3px; }
-
-/* iPad specific tweaks */
-@media (min-width: 768px) and (max-width: 1024px) {
-.grid-cell { width: 44px; height: 44px; font-size: 22px; }
-.build-layout { grid-template-columns: 190px 1fr 200px; gap: 12px; padding: 12px; }
-}
-
-/* Touch-friendly sizing */
-@media (pointer: coarse) {
-.palette-item { padding: 10px 9px; }
-.tab { padding: 10px 14px; }
-.grid-cell { min-width: 40px; min-height: 40px; }
-}
-
-select {
-background: var(–bg-panel);
-border: 1px solid var(–border);
-color: var(–ink);
-padding: 5px 8px;
-font-family: ‘Cinzel’, serif;
-font-size: 12px;
-border-radius: 3px;
-cursor: pointer;
-}
-select:focus { outline: none; border-color: var(–gold-mid); }
-
-.section-div {
-width: 100%; height: 1px;
-background: linear-gradient(90deg, transparent, var(–border), transparent);
-margin: 12px 0;
-}
+  @media(min-width:768px) and (max-width:1024px) {
+    .grid-cell{width:44px;height:44px;font-size:22px;}
+    .build-layout{grid-template-columns:188px 1fr 200px;gap:12px;padding:12px;}
+  }
+  @media(pointer:coarse) { .palette-item{padding:11px 9px;} .tab{padding:10px 14px;} }
 </style>
-
 </head>
 <body>
 
-<!-- ══════════ TITLE ══════════ -->
-
+<!-- ══ TITLE ══ -->
 <div id="screen-title" class="screen active">
-  <div class="title-castle-icon">🏰</div>
-  <h1 class="title-main">Castle Architect</h1>
+  <div class="title-icon">🏰</div>
+  <h1 class="title-main">Castle<br>Architect</h1>
   <p class="title-sub">Build Your Kingdom</p>
-  <div class="title-divider"></div>
-  <p class="title-desc">Manage your treasury, gather resources, hire skilled workers — then design and build a mighty fortress stone by stone.</p>
+  <div class="title-rule"></div>
+  <p class="title-desc">Rule your lands. Manage your treasury, gather resources, hire skilled workers — then design and build a mighty fortress stone by stone.</p>
   <button class="btn-primary" onclick="startGame()">Begin Your Reign</button>
-  <p style="font-size:13px; color:var(--ink-light); font-style:italic; animation: fadeIn 1s 1.8s forwards; opacity:0;">
-    Manage your kingdom through the seasons, then construct your castle
-  </p>
+  <p style="font-size:13px;color:var(--stone);font-style:italic;animation:fadeIn 1s 1.9s forwards;opacity:0;">Manage your kingdom through the seasons, then construct your castle</p>
 </div>
 
-<!-- ══════════ HUD ══════════ -->
-
+<!-- ══ HUD ══ -->
 <div id="hud">
   <span class="hud-logo">🏰 Castle Architect</span>
-  <div class="hud-divider"></div>
-  <div class="hud-stat"><span class="icon">💰</span><span id="hud-gold" class="val">500</span></div>
-  <div class="hud-stat"><span class="icon">🪨</span><span id="hud-stone" class="val">0</span></div>
-  <div class="hud-stat"><span class="icon">🪵</span><span id="hud-wood" class="val">0</span></div>
-  <div class="hud-stat"><span class="icon">👷</span><span id="hud-workers" class="val">0</span></div>
+  <div class="hud-sep"></div>
+  <div class="hud-stat"><span>💰</span><span id="h-gold" class="val">500</span></div>
+  <div class="hud-stat"><span>🪨</span><span id="h-stone" class="val">0</span></div>
+  <div class="hud-stat"><span>🪵</span><span id="h-wood" class="val">0</span></div>
+  <div class="hud-stat"><span>👷</span><span id="h-workers" class="val">0</span></div>
   <div class="hud-right">
     <span class="hud-phase" id="hud-phase">Management</span>
     <button class="btn-secondary" onclick="switchPhase()" id="phase-btn">⚒ Build Mode</button>
   </div>
 </div>
 
-<!-- ══════════ MANAGEMENT ══════════ -->
-
+<!-- ══ MANAGEMENT ══ -->
 <div id="screen-manage" class="screen">
-
-  <div class="manage-top-bar">
+  <div class="manage-topbar">
     <div class="season-badge">
-      <span class="icon" id="season-icon">🌸</span>
-      <div>
-        <div class="name" id="season-name">Spring</div>
-        <div class="year" id="season-year">Year 1 of your Reign</div>
-      </div>
+      <span class="s-icon" id="s-icon">🌸</span>
+      <div><div class="s-name" id="s-name">Spring</div><div class="s-year" id="s-year">Year 1 of your Reign</div></div>
     </div>
-    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-      <div class="income-badge">
-        <div class="val" id="income-preview">+35 💰</div>
-        <div class="label">est. income/season</div>
-      </div>
-      <button class="advance-btn" style="width:auto; padding:10px 24px;" onclick="advanceTurn()">⏭ Next Season</button>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div class="income-badge"><div class="i-val" id="income-val">+35 💰</div><div class="i-lbl">est. income / season</div></div>
+      <button class="advance-btn" style="width:auto;padding:10px 22px;" onclick="advanceTurn()">⏭ Next Season</button>
     </div>
   </div>
 
   <div class="manage-body">
+    <div class="panel">
+      <div class="panel-title">📦 Resources & Treasury</div>
+      <div class="rb-wrap"><div class="rb-label"><strong>💰 Gold</strong><span id="rv-gold">500 / 2000</span></div><div class="rb-track"><div class="rb-fill" id="rb-gold" style="width:25%;background:linear-gradient(90deg,#7a5c1e,#c9a84c)"></div></div></div>
+      <div class="rb-wrap"><div class="rb-label"><strong>🪨 Stone</strong><span id="rv-stone">0 / 500</span></div><div class="rb-track"><div class="rb-fill" id="rb-stone" style="width:0%;background:linear-gradient(90deg,#555,#999)"></div></div></div>
+      <div class="rb-wrap"><div class="rb-label"><strong>🪵 Wood</strong><span id="rv-wood">0 / 500</span></div><div class="rb-track"><div class="rb-fill" id="rb-wood" style="width:0%;background:linear-gradient(90deg,#5a3a1a,#a07040)"></div></div></div>
+      <div class="rb-wrap"><div class="rb-label"><strong>🍞 Food</strong><span id="rv-food">50 / 200</span></div><div class="rb-track"><div class="rb-fill" id="rb-food" style="width:25%;background:linear-gradient(90deg,#5a4010,#c8922a)"></div></div></div>
+      <div class="rb-wrap"><div class="rb-label"><strong>😊 Morale</strong><span id="rv-morale">70 / 100</span></div><div class="rb-track"><div class="rb-fill" id="rb-morale" style="width:70%;background:linear-gradient(90deg,#2a5a8a,#4a9aca)"></div></div></div>
+    </div>
 
-```
-<!-- Resources -->
-<div class="panel">
-  <div class="panel-title">📦 Resources</div>
-  <div class="res-bar-wrap">
-    <div class="res-bar-label"><strong>💰 Gold</strong><span id="rv-gold">500 / 2000</span></div>
-    <div class="res-bar"><div class="res-bar-fill" id="rb-gold" style="width:25%;background:linear-gradient(90deg,#a07020,#d4a82a)"></div></div>
-  </div>
-  <div class="res-bar-wrap">
-    <div class="res-bar-label"><strong>🪨 Stone</strong><span id="rv-stone">0 / 500</span></div>
-    <div class="res-bar"><div class="res-bar-fill" id="rb-stone" style="width:0%;background:linear-gradient(90deg,#777,#aaa)"></div></div>
-  </div>
-  <div class="res-bar-wrap">
-    <div class="res-bar-label"><strong>🪵 Wood</strong><span id="rv-wood">0 / 500</span></div>
-    <div class="res-bar"><div class="res-bar-fill" id="rb-wood" style="width:0%;background:linear-gradient(90deg,#7a5020,#b07840)"></div></div>
-  </div>
-  <div class="res-bar-wrap">
-    <div class="res-bar-label"><strong>🍞 Food</strong><span id="rv-food">50 / 200</span></div>
-    <div class="res-bar"><div class="res-bar-fill" id="rb-food" style="width:25%;background:linear-gradient(90deg,#8a6010,#c89830)"></div></div>
-  </div>
-  <div class="res-bar-wrap">
-    <div class="res-bar-label"><strong>😊 Morale</strong><span id="rv-morale">70 / 100</span></div>
-    <div class="res-bar"><div class="res-bar-fill" id="rb-morale" style="width:70%;background:linear-gradient(90deg,#2a5a8a,#3a8aca)"></div></div>
+    <div class="panel">
+      <div class="panel-title">👷 Workers</div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'t-roster')">Roster</div>
+        <div class="tab" onclick="switchTab(this,'t-hire')">Hire</div>
+        <div class="tab" onclick="switchTab(this,'t-assign')">Assign</div>
+      </div>
+      <div id="t-roster" class="tab-content active" style="max-height:270px;overflow-y:auto;"><div id="worker-list"></div></div>
+      <div id="t-hire"   class="tab-content"        style="max-height:270px;overflow-y:auto;"><div style="font-size:12px;color:var(--stone);font-style:italic;margin-bottom:8px;">Hiring cost = 3× monthly wage.</div><div id="hire-list"></div></div>
+      <div id="t-assign" class="tab-content"        style="max-height:270px;overflow-y:auto;"><div style="font-size:12px;color:var(--stone);font-style:italic;margin-bottom:8px;">Assign workers to boost resource output each season.</div><div id="assign-list"></div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">🏪 Trade Market</div>
+      <div id="trade-list" style="max-height:330px;overflow-y:auto;"></div>
+    </div>
+
+    <div class="panel full-row">
+      <div class="panel-title">📜 Kingdom Chronicle</div>
+      <div class="event-log" id="event-log"></div>
+    </div>
   </div>
 </div>
 
-<!-- Workers -->
-<div class="panel">
-  <div class="panel-title">👷 Workers</div>
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab(this,'t-roster')">Roster</div>
-    <div class="tab" onclick="switchTab(this,'t-hire')">Hire</div>
-    <div class="tab" onclick="switchTab(this,'t-assign')">Assign</div>
-  </div>
-  <div id="t-roster" class="tab-content active" style="max-height:280px;overflow-y:auto;">
-    <div id="worker-list"></div>
-  </div>
-  <div id="t-hire" class="tab-content" style="max-height:280px;overflow-y:auto;">
-    <div style="font-size:13px;color:var(--ink-light);font-style:italic;margin-bottom:10px;">Hiring cost = 3× monthly wage.</div>
-    <div id="hire-list"></div>
-  </div>
-  <div id="t-assign" class="tab-content" style="max-height:280px;overflow-y:auto;">
-    <div style="font-size:13px;color:var(--ink-light);font-style:italic;margin-bottom:10px;">Assign workers to boost output each season.</div>
-    <div id="assign-list"></div>
-  </div>
-</div>
-
-<!-- Trade Market -->
-<div class="panel">
-  <div class="panel-title">🏪 Trade Market</div>
-  <div id="trade-list" style="max-height:340px;overflow-y:auto;"></div>
-</div>
-
-<!-- Chronicle — full width -->
-<div class="panel manage-full-row">
-  <div class="panel-title">📜 Kingdom Chronicle</div>
-  <div class="event-log" id="event-log"></div>
-</div>
-```
-
-  </div>
-</div>
-
-<!-- ══════════ BUILD ══════════ -->
-
+<!-- ══ BUILD ══ -->
 <div id="screen-build" class="screen">
   <div class="build-layout">
-
-```
-<!-- Left: Palette -->
-<div>
-  <div class="panel">
-    <div class="panel-title">🧱 Building Blocks</div>
-    <div class="palette-scroll" id="palette-list"></div>
-  </div>
-  <div class="panel" style="margin-top:12px;">
-    <div class="panel-title">🔨 Tools</div>
-    <div class="palette-item" id="tool-erase" onclick="selectTool('erase')">
-      <span class="pal-icon">🗑️</span>
-      <div><div class="pal-name">Erase</div><div class="pal-cost">50% refund</div></div>
+    <div>
+      <div class="panel">
+        <div class="panel-title">🧱 Building Blocks</div>
+        <div class="pal-scroll" id="palette-list"></div>
+      </div>
+      <div class="panel" style="margin-top:12px;">
+        <div class="panel-title">🔨 Tools</div>
+        <div class="palette-item" id="tool-erase" onclick="selectTool('erase')"><span class="p-icon">🗑️</span><div><div class="p-name">Erase</div><div class="p-cost">50% refund</div></div></div>
+        <div class="palette-item" onclick="clearGrid()"><span class="p-icon">💣</span><div><div class="p-name">Clear All</div><div class="p-cost">Start over</div></div></div>
+      </div>
     </div>
-    <div class="palette-item" onclick="clearGrid()">
-      <span class="pal-icon">💣</span>
-      <div><div class="pal-name">Clear All</div><div class="pal-cost">Start over</div></div>
+
+    <div class="grid-wrap">
+      <div class="grid-label">Castle Design Grid</div>
+      <div class="castle-grid" id="castle-grid" style="grid-template-columns:repeat(16,48px);grid-template-rows:repeat(12,48px);"></div>
+      <div class="cp-wrap">
+        <div class="cp-labels"><span>Construction Progress</span><span id="cp-pct">0%</span></div>
+        <div class="cp-track"><div class="cp-fill" id="cp-fill" style="width:0%"></div></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <button class="btn-secondary" onclick="switchPhase()">← Management</button>
+        <button class="btn-primary no-anim" onclick="checkVictory()">🏆 Submit Castle</button>
+      </div>
     </div>
-  </div>
-</div>
 
-<!-- Centre: Grid -->
-<div class="castle-grid-wrap">
-  <div class="grid-label">Castle Design Grid</div>
-  <div class="castle-grid" id="castle-grid" style="grid-template-columns:repeat(16,48px);grid-template-rows:repeat(12,48px);"></div>
-  <div class="castle-progress">
-    <div class="cp-label"><span>Construction Progress</span><span id="cp-pct">0%</span></div>
-    <div class="cp-bar"><div class="cp-fill" id="cp-fill" style="width:0%"></div></div>
-  </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
-    <button class="btn-secondary" onclick="switchPhase()">← Management</button>
-    <button class="btn-primary no-anim" onclick="checkVictory()">🏆 Submit Castle</button>
-  </div>
-</div>
-
-<!-- Right: Stats & info -->
-<div class="build-info-scroll">
-  <div class="panel">
-    <div class="panel-title">📐 Castle Stats</div>
-    <div class="build-stat"><span class="label">Total Tiles</span><span class="value" id="bs-total">0</span></div>
-    <div class="build-stat"><span class="label">Towers / Keep</span><span class="value" id="bs-towers">0</span></div>
-    <div class="build-stat"><span class="label">Walls</span><span class="value" id="bs-walls">0</span></div>
-    <div class="build-stat"><span class="label">Gates</span><span class="value" id="bs-gates">0</span></div>
-    <div class="build-stat"><span class="label">Rooms</span><span class="value" id="bs-rooms">0</span></div>
-    <div class="build-stat"><span class="label">Decorations</span><span class="value" id="bs-deco">0</span></div>
-    <div class="section-div"></div>
-    <div class="build-stat"><span class="label">💰 Gold Spent</span><span class="value" id="bs-gold">0</span></div>
-    <div class="build-stat"><span class="label">🪨 Stone Spent</span><span class="value" id="bs-stone">0</span></div>
-    <div class="build-stat"><span class="label">🪵 Wood Spent</span><span class="value" id="bs-wood">0</span></div>
-    <div class="section-div"></div>
-    <div class="build-stat"><span class="label">⚔️ Defence</span><span class="value" id="bs-defence">0</span></div>
-    <div class="build-stat"><span class="label">✨ Prestige</span><span class="value" id="bs-prestige">0</span></div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-title">🎯 Selected Block</div>
-    <div id="sel-info" style="font-size:13px;color:var(--ink-light);font-style:italic;line-height:1.6;">
-      Select a block from the palette, then tap the grid to place it.
+    <div class="build-info-scroll">
+      <div class="panel">
+        <div class="panel-title">📐 Castle Stats</div>
+        <div class="bs"><span class="lbl">Total Tiles</span><span class="val" id="bs-total">0</span></div>
+        <div class="bs"><span class="lbl">Towers / Keep</span><span class="val" id="bs-towers">0</span></div>
+        <div class="bs"><span class="lbl">Walls</span><span class="val" id="bs-walls">0</span></div>
+        <div class="bs"><span class="lbl">Gates</span><span class="val" id="bs-gates">0</span></div>
+        <div class="bs"><span class="lbl">Rooms</span><span class="val" id="bs-rooms">0</span></div>
+        <div class="bs"><span class="lbl">Decorations</span><span class="val" id="bs-deco">0</span></div>
+        <div class="s-rule"></div>
+        <div class="bs"><span class="lbl">💰 Gold Spent</span><span class="val" id="bs-gold">0</span></div>
+        <div class="bs"><span class="lbl">🪨 Stone Spent</span><span class="val" id="bs-stone">0</span></div>
+        <div class="bs"><span class="lbl">🪵 Wood Spent</span><span class="val" id="bs-wood">0</span></div>
+        <div class="s-rule"></div>
+        <div class="bs"><span class="lbl">⚔️ Defence</span><span class="val" id="bs-defence">0</span></div>
+        <div class="bs"><span class="lbl">✨ Prestige</span><span class="val" id="bs-prestige">0</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">🎯 Selected Block</div>
+        <div id="sel-info" style="font-size:13px;color:var(--stone-light);font-style:italic;line-height:1.6;">Select a block from the palette, then tap the grid to place it.</div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">💡 Tip</div>
+        <div class="hint-box" id="hint-text">Build walls around your perimeter, towers at corners, and don't forget a Gatehouse!</div>
+      </div>
     </div>
   </div>
-
-  <div class="panel">
-    <div class="panel-title">💡 Tip</div>
-    <div class="hint-box" id="hint-text">Build walls around your perimeter, place towers at corners, and don't forget a Gatehouse!</div>
-  </div>
-</div>
-```
-
-  </div>
 </div>
 
-<!-- ══════════ VICTORY ══════════ -->
-
+<!-- ══ VICTORY ══ -->
 <div id="screen-victory" class="screen">
-  <div class="victory-icon">👑</div>
-  <h2 class="victory-title">Your Castle Stands!</h2>
-  <p class="victory-desc" id="v-desc">A mighty fortress rises upon your lands…</p>
+  <div class="v-icon">👑</div>
+  <h2 class="v-title">Your Castle Stands!</h2>
+  <p class="v-desc" id="v-desc">A mighty fortress rises upon your lands…</p>
   <div class="panel" style="max-width:400px;width:90%;" id="v-stats"></div>
   <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
     <button class="btn-primary no-anim" onclick="startGame()">🔄 New Game</button>
@@ -823,568 +437,128 @@ margin: 12px 0;
 </div>
 
 <!-- Modal -->
-
 <div class="modal-overlay" id="modal">
   <div class="modal-box">
-    <div class="modal-title" id="modal-title">Confirm</div>
-    <div class="modal-body" id="modal-body"></div>
-    <div class="modal-actions">
+    <div class="m-title" id="m-title">Confirm</div>
+    <div class="m-body"  id="m-body"></div>
+    <div class="m-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary no-anim" id="modal-ok">Confirm</button>
+      <button class="btn-primary no-anim" id="m-ok">Confirm</button>
     </div>
   </div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════
-   GAME STATE
-═══════════════════════════════════════ */
-const G = {
-  gold:500, maxGold:2000, stone:0, maxStone:500,
-  wood:0, maxWood:500, food:50, maxFood:200, morale:70, maxMorale:100,
-  year:1, seasonIdx:0,
-  workers:[], events:[],
-  grid:{}, selectedBlock:null, selectedTool:'place',
-  goldSpent:0, stoneSpent:0, woodSpent:0,
-  phase:'manage',
-};
-
-const SEASONS = ['Spring','Summer','Autumn','Winter'];
-const S_ICONS  = ['🌸','☀️','🍂','❄️'];
-
-const BLOCKS = [
-  {id:'wall',       name:'Stone Wall',       icon:'🧱',cat:'structure',goldCost:5, stoneCost:3, woodCost:0, defence:2,  prestige:1 ,desc:'Basic wall — the backbone of any castle.'},
-  {id:'battlement', name:'Battlements',      icon:'🏯',cat:'structure',goldCost:8, stoneCost:4, woodCost:0, defence:3,  prestige:2 ,desc:'Crenellated ramparts for archers.'},
-  {id:'tower',      name:'Round Tower',      icon:'🗼',cat:'structure',goldCost:30,stoneCost:15,woodCost:2, defence:8,  prestige:5 ,desc:'Towers provide excellent sight lines and defence.'},
-  {id:'keep',       name:'Castle Keep',      icon:'🏰',cat:'structure',goldCost:80,stoneCost:30,woodCost:10,defence:12, prestige:15,desc:"The lord's great tower — last bastion of defence."},
-  {id:'gate',       name:'Gatehouse',        icon:'🚪',cat:'gate',     goldCost:40,stoneCost:20,woodCost:8, defence:6,  prestige:8 ,desc:'A fortified entrance. Every castle needs one.'},
-  {id:'barracks',   name:'Barracks',         icon:'⚔️',cat:'room',     goldCost:25,stoneCost:8, woodCost:12,defence:4,  prestige:3 ,desc:'Houses soldiers and improves garrison strength.'},
-  {id:'great_hall', name:'Great Hall',       icon:'🏛️',cat:'room',     goldCost:60,stoneCost:15,woodCost:20,defence:1,  prestige:12,desc:'Grand feasting hall — centre of noble life.'},
-  {id:'chapel',     name:'Chapel',           icon:'⛪',cat:'room',     goldCost:35,stoneCost:10,woodCost:8, defence:0,  prestige:10,desc:'A place of worship — raises morale and prestige.'},
-  {id:'stable',     name:'Stables',          icon:'🐴',cat:'room',     goldCost:20,stoneCost:5, woodCost:15,defence:1,  prestige:3 ,desc:'Houses horses for knights and messengers.'},
-  {id:'forge',      name:'Blacksmith Forge', icon:'⚒️',cat:'room',     goldCost:30,stoneCost:10,woodCost:8, defence:2,  prestige:4 ,desc:'Produces weapons and armour.'},
-  {id:'well',       name:'Castle Well',      icon:'🪣',cat:'room',     goldCost:12,stoneCost:6, woodCost:2, defence:0,  prestige:2 ,desc:'Vital water source during a siege.'},
-  {id:'dungeon',    name:'Dungeon',          icon:'🔒',cat:'room',     goldCost:20,stoneCost:12,woodCost:3, defence:3,  prestige:2 ,desc:'Holds prisoners below ground.'},
-  {id:'moat',       name:'Moat',             icon:'💧',cat:'defence',  goldCost:10,stoneCost:0, woodCost:0, defence:5,  prestige:2 ,desc:'Water barrier — very effective defence.'},
-  {id:'ground',     name:'Cobblestone',      icon:'⬛',cat:'ground',   goldCost:2, stoneCost:1, woodCost:0, defence:0,  prestige:0 ,desc:'Fill in courtyards and pathways.'},
-  {id:'flag',       name:'Banner & Flag',    icon:'🚩',cat:'deco',     goldCost:5, stoneCost:0, woodCost:2, defence:0,  prestige:3 ,desc:'Show your heraldic colours.'},
-  {id:'garden',     name:'Castle Garden',    icon:'🌿',cat:'deco',     goldCost:8, stoneCost:0, woodCost:2, defence:0,  prestige:4 ,desc:'A peaceful garden within the walls.'},
+const G={gold:500,maxGold:2000,stone:0,maxStone:500,wood:0,maxWood:500,food:50,maxFood:200,morale:70,maxMorale:100,year:1,seasonIdx:0,workers:[],events:[],grid:{},selectedBlock:null,selectedTool:'place',goldSpent:0,stoneSpent:0,woodSpent:0,phase:'manage'};
+const SEASONS=['Spring','Summer','Autumn','Winter'],S_ICONS=['🌸','☀️','🍂','❄️'];
+const BLOCKS=[
+  {id:'wall',       name:'Stone Wall',       icon:'🧱',cat:'structure',goldCost:5, stoneCost:3, woodCost:0, defence:2, prestige:1, desc:'Basic wall — the backbone of any castle.'},
+  {id:'battlement', name:'Battlements',      icon:'🏯',cat:'structure',goldCost:8, stoneCost:4, woodCost:0, defence:3, prestige:2, desc:'Crenellated ramparts for archers to defend from.'},
+  {id:'tower',      name:'Round Tower',      icon:'🗼',cat:'structure',goldCost:30,stoneCost:15,woodCost:2, defence:8, prestige:5, desc:'Towers provide excellent sight lines and defence.'},
+  {id:'keep',       name:'Castle Keep',      icon:'🏰',cat:'structure',goldCost:80,stoneCost:30,woodCost:10,defence:12,prestige:15,desc:"The lord's great tower — last bastion of defence."},
+  {id:'gate',       name:'Gatehouse',        icon:'🚪',cat:'gate',     goldCost:40,stoneCost:20,woodCost:8, defence:6, prestige:8, desc:'A fortified entrance. Every castle needs one.'},
+  {id:'barracks',   name:'Barracks',         icon:'⚔️',cat:'room',     goldCost:25,stoneCost:8, woodCost:12,defence:4, prestige:3, desc:'Houses soldiers and improves garrison strength.'},
+  {id:'great_hall', name:'Great Hall',       icon:'🏛️',cat:'room',     goldCost:60,stoneCost:15,woodCost:20,defence:1, prestige:12,desc:'Grand feasting hall — the centre of noble life.'},
+  {id:'chapel',     name:'Chapel',           icon:'⛪',cat:'room',     goldCost:35,stoneCost:10,woodCost:8, defence:0, prestige:10,desc:'A place of worship — raises morale and prestige.'},
+  {id:'stable',     name:'Stables',          icon:'🐴',cat:'room',     goldCost:20,stoneCost:5, woodCost:15,defence:1, prestige:3, desc:'Houses horses for knights and messengers.'},
+  {id:'forge',      name:'Blacksmith Forge', icon:'⚒️',cat:'room',     goldCost:30,stoneCost:10,woodCost:8, defence:2, prestige:4, desc:'Produces weapons and armour.'},
+  {id:'well',       name:'Castle Well',      icon:'🪣',cat:'room',     goldCost:12,stoneCost:6, woodCost:2, defence:0, prestige:2, desc:'Vital water source during a siege.'},
+  {id:'dungeon',    name:'Dungeon',          icon:'🔒',cat:'room',     goldCost:20,stoneCost:12,woodCost:3, defence:3, prestige:2, desc:'Holds prisoners below ground.'},
+  {id:'moat',       name:'Moat',             icon:'💧',cat:'defence',  goldCost:10,stoneCost:0, woodCost:0, defence:5, prestige:2, desc:'Water barrier around your walls.'},
+  {id:'ground',     name:'Cobblestone',      icon:'⬛',cat:'ground',   goldCost:2, stoneCost:1, woodCost:0, defence:0, prestige:0, desc:'Fill in courtyards and pathways.'},
+  {id:'flag',       name:'Banner & Flag',    icon:'🚩',cat:'deco',     goldCost:5, stoneCost:0, woodCost:2, defence:0, prestige:3, desc:'Show your heraldic colours atop your towers.'},
+  {id:'garden',     name:'Castle Garden',    icon:'🌿',cat:'deco',     goldCost:8, stoneCost:0, woodCost:2, defence:0, prestige:4, desc:'A peaceful garden within the castle walls.'},
 ];
-
-const WORKERS_POOL = [
-  {id:'mason1',   name:'Robert Mason',    role:'Stonemason',    wage:15,stoneB:8, woodB:0, foodB:0,  goldB:0 },
-  {id:'logger1',  name:'Edmund Forester', role:'Woodcutter',    wage:10,stoneB:0, woodB:10,foodB:0,  goldB:0 },
-  {id:'farmer1',  name:'Agnes Grower',    role:'Farmer',        wage:8, stoneB:0, woodB:0, foodB:12, goldB:0 },
-  {id:'merchant1',name:'Thomas Broker',   role:'Merchant',      wage:20,stoneB:0, woodB:0, foodB:0,  goldB:20},
-  {id:'mason2',   name:'William Quarry',  role:'Master Mason',  wage:25,stoneB:15,woodB:0, foodB:0,  goldB:5 },
-  {id:'logger2',  name:'John Timberman',  role:'Master Logger', wage:18,stoneB:0, woodB:18,foodB:0,  goldB:0 },
-  {id:'steward1', name:'Lady Eleanor',    role:'Steward',       wage:22,stoneB:2, woodB:2, foodB:5,  goldB:15},
-  {id:'guard1',   name:'Heinrich Guard',  role:'Sergeant',      wage:18,stoneB:0, woodB:0, foodB:0,  goldB:10},
+const WORKERS_POOL=[
+  {id:'mason1',   name:'Robert Mason',    role:'Stonemason',   wage:15,sB:8, wB:0, fB:0,  gB:0 },
+  {id:'logger1',  name:'Edmund Forester', role:'Woodcutter',   wage:10,sB:0, wB:10,fB:0,  gB:0 },
+  {id:'farmer1',  name:'Agnes Grower',    role:'Farmer',       wage:8, sB:0, wB:0, fB:12, gB:0 },
+  {id:'merchant1',name:'Thomas Broker',   role:'Merchant',     wage:20,sB:0, wB:0, fB:0,  gB:20},
+  {id:'mason2',   name:'William Quarry',  role:'Master Mason', wage:25,sB:15,wB:0, fB:0,  gB:5 },
+  {id:'logger2',  name:'John Timberman',  role:'Master Logger',wage:18,sB:0, wB:18,fB:0,  gB:0 },
+  {id:'steward1', name:'Lady Eleanor',    role:'Steward',      wage:22,sB:2, wB:2, fB:5,  gB:15},
+  {id:'guard1',   name:'Heinrich Guard',  role:'Sergeant',     wage:18,sB:0, wB:0, fB:0,  gB:10},
 ];
-
-const TRADE_ITEMS = [
-  {id:'bs50',  name:'Buy Stone (50)',   icon:'🪨',desc:'50 units of quarried stone',goldC:40, stoneC:-50,woodC:0,  foodC:0 },
-  {id:'bs200', name:'Buy Stone (200)',  icon:'🪨',desc:'200 units of quarried stone',goldC:140,stoneC:-200,woodC:0, foodC:0 },
-  {id:'bw50',  name:'Buy Wood (50)',    icon:'🪵',desc:'50 units of timber',         goldC:30, stoneC:0,  woodC:-50,foodC:0 },
-  {id:'bw200', name:'Buy Wood (200)',   icon:'🪵',desc:'200 units of timber',        goldC:100,stoneC:0,  woodC:-200,foodC:0},
-  {id:'bf50',  name:'Buy Food (50)',    icon:'🍞',desc:'50 units of provisions',     goldC:20, stoneC:0,  woodC:0,  foodC:-50},
-  {id:'ss50',  name:'Sell Stone (50)',  icon:'💰',desc:'Sell 50 stone for gold',     goldC:-25,stoneC:50, woodC:0,  foodC:0 },
-  {id:'sw50',  name:'Sell Wood (50)',   icon:'💰',desc:'Sell 50 wood for gold',      goldC:-20,stoneC:0,  woodC:50, foodC:0 },
+const TRADE_ITEMS=[
+  {id:'bs50', name:'Buy Stone (50)',  icon:'🪨',desc:'50 units of quarried stone',  gC:40, sC:-50, wC:0,   fC:0 },
+  {id:'bs200',name:'Buy Stone (200)', icon:'🪨',desc:'200 units of quarried stone', gC:140,sC:-200,wC:0,   fC:0 },
+  {id:'bw50', name:'Buy Wood (50)',   icon:'🪵',desc:'50 units of timber',          gC:30, sC:0,   wC:-50, fC:0 },
+  {id:'bw200',name:'Buy Wood (200)',  icon:'🪵',desc:'200 units of timber',         gC:100,sC:0,   wC:-200,fC:0 },
+  {id:'bf50', name:'Buy Food (50)',   icon:'🍞',desc:'50 units of provisions',      gC:20, sC:0,   wC:0,   fC:-50},
+  {id:'ss50', name:'Sell Stone (50)', icon:'💰',desc:'Sell 50 stone for gold',      gC:-25,sC:50,  wC:0,   fC:0 },
+  {id:'sw50', name:'Sell Wood (50)',  icon:'💰',desc:'Sell 50 wood for gold',       gC:-20,sC:0,   wC:50,  fC:0 },
 ];
+const HINTS=['Towers placed at corners give maximum coverage.','A Gatehouse is required to complete your castle!','Build walls around the perimeter before filling the interior.','Gardens and Chapels boost prestige significantly.','The Great Hall and Keep add massive prestige — worth the cost.','A moat around your outer walls dramatically improves defence.','Assign workers to the resources you need most urgently.','Advance several seasons to stockpile resources before building.','Stone is the most critical resource — buy extra before starting.'];
+let hintIdx=0,hintTimer,isDown=false;
+const GRID_ROWS=12,GRID_COLS=16;
 
-const HINTS = [
-  'Towers placed at corners give maximum coverage.',
-  'A Gatehouse is required to complete your castle!',
-  'Build walls around the perimeter before filling the interior.',
-  'Gardens and Chapels boost prestige significantly.',
-  'The Great Hall and Keep are expensive but add massive prestige.',
-  'A moat around outer walls dramatically improves defence.',
-  'Assign workers to the resources you need most urgently.',
-  'Advance several seasons to stockpile resources before building.',
-  'Stone is the most critical resource — buy extra before construction.',
-];
-let hintIdx = 0;
-let hintTimer;
+function startGame(){Object.assign(G,{gold:500,stone:0,wood:0,food:50,morale:70,year:1,seasonIdx:0,workers:[],events:[],grid:{},selectedBlock:null,selectedTool:'place',goldSpent:0,stoneSpent:0,woodSpent:0,phase:'manage'});addEvent('⚔️ Your reign begins. The land awaits your vision!','gold');addEvent('🌸 Spring has arrived. Set workers to gather resources.','neutral');document.getElementById('hud').style.display='flex';showScreen('manage');renderAll();clearInterval(hintTimer);hintTimer=setInterval(rotateHint,7000);}
 
-const GRID_ROWS = 12, GRID_COLS = 16;
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');G.phase=id==='build'?'build':'manage';document.getElementById('hud-phase').textContent=id==='build'?'Build Mode':'Management';document.getElementById('phase-btn').textContent=id==='build'?'← Manage':'⚒ Build Mode';}
 
-/* ═══════════════════════════════════════
-   INIT
-═══════════════════════════════════════ */
-function startGame() {
-  Object.assign(G, {
-    gold:500, stone:0, wood:0, food:50, morale:70,
-    year:1, seasonIdx:0,
-    workers:[], events:[],
-    grid:{}, selectedBlock:null, selectedTool:'place',
-    goldSpent:0, stoneSpent:0, woodSpent:0,
-  });
-  addEvent('⚔️ Your reign begins. The land awaits your vision!','gold');
-  addEvent('🌸 Spring has arrived. Set workers to gather resources.','neutral');
-  showScreen('manage');
-  document.getElementById('hud').style.display = 'flex';
-  renderAll();
-  clearInterval(hintTimer);
-  hintTimer = setInterval(rotateHint, 7000);
-}
+function switchPhase(){if(G.phase==='manage'){showScreen('build');renderGrid();renderPalette();updateBuildStats();}else{showScreen('manage');renderAll();}}
 
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + name).classList.add('active');
-  G.phase = name === 'build' ? 'build' : 'manage';
-  document.getElementById('hud-phase').textContent = name === 'build' ? 'Build Mode' : 'Management';
-  document.getElementById('phase-btn').textContent = name === 'build' ? '← Manage' : '⚒ Build Mode';
-}
+function renderAll(){updateHud();updateResBars();updateSeasonUI();renderWorkerList();renderHireList();renderAssignList();renderTradeList();updateIncomePreview();const el=document.getElementById('event-log');if(el)el.innerHTML=G.events.slice(0,20).map(e=>`<div class="ev ${e.type}"><span class="ts">[${e.ts}]</span> ${e.text}</div>`).join('');}
 
-function switchPhase() {
-  if (G.phase === 'manage') {
-    showScreen('build');
-    renderGrid(); renderPalette(); updateBuildStats();
-  } else {
-    showScreen('manage'); renderAll();
-  }
-}
+function updateHud(){document.getElementById('h-gold').textContent=G.gold;document.getElementById('h-stone').textContent=G.stone;document.getElementById('h-wood').textContent=G.wood;document.getElementById('h-workers').textContent=G.workers.length;}
 
-/* ═══════════════════════════════════════
-   RENDER ALL
-═══════════════════════════════════════ */
-function renderAll() {
-  updateHud(); updateResBars(); updateSeasonUI();
-  renderWorkerList(); renderHireList(); renderAssignList();
-  renderTradeList(); updateIncomePreview();
-  const el = document.getElementById('event-log');
-  if (el) el.innerHTML = G.events.slice(0,20).map(e =>
-    `<div class="ev ${e.type}"><span class="ts">[${e.ts}]</span> ${e.text}</div>`
-  ).join('');
-}
+function updateResBars(){[['gold',G.gold,G.maxGold],['stone',G.stone,G.maxStone],['wood',G.wood,G.maxWood],['food',G.food,G.maxFood],['morale',G.morale,G.maxMorale]].forEach(([id,v,m])=>{document.getElementById('rb-'+id).style.width=Math.min(100,(v/m)*100)+'%';document.getElementById('rv-'+id).textContent=v+' / '+m;});}
 
-function updateHud() {
-  document.getElementById('hud-gold').textContent    = G.gold;
-  document.getElementById('hud-stone').textContent   = G.stone;
-  document.getElementById('hud-wood').textContent    = G.wood;
-  document.getElementById('hud-workers').textContent = G.workers.length;
-}
+function updateSeasonUI(){document.getElementById('s-icon').textContent=S_ICONS[G.seasonIdx];document.getElementById('s-name').textContent=SEASONS[G.seasonIdx];document.getElementById('s-year').textContent=`Year ${G.year} of your Reign`;}
 
-function updateResBars() {
-  const pairs = [
-    ['gold',G.gold,G.maxGold],['stone',G.stone,G.maxStone],
-    ['wood',G.wood,G.maxWood],['food',G.food,G.maxFood],['morale',G.morale,G.maxMorale]
-  ];
-  pairs.forEach(([id,val,max]) => {
-    document.getElementById('rb-'+id).style.width = Math.min(100,(val/max)*100)+'%';
-    document.getElementById('rv-'+id).textContent = val+' / '+max;
-  });
-}
+function updateIncomePreview(){document.getElementById('income-val').textContent='+'+calcIncome().gold+' 💰';}
 
-function updateSeasonUI() {
-  const s = SEASONS[G.seasonIdx], i = S_ICONS[G.seasonIdx];
-  document.getElementById('season-icon').textContent = i;
-  document.getElementById('season-name').textContent = s;
-  document.getElementById('season-year').textContent = `Year ${G.year} of your Reign`;
-}
+function calcIncome(){let gold=35,stone=0,wood=0,food=5;const m=getSeasonMult();for(const w of G.workers){const wp=WORKERS_POOL.find(x=>x.id===w.poolId);if(!wp)continue;if(w.assign==='stone')stone+=wp.sB;else if(w.assign==='wood')wood+=wp.wB;else if(w.assign==='food')food+=wp.fB;else if(w.assign==='gold')gold+=wp.gB;gold-=wp.wage;}return{gold:Math.round(gold*m.g),stone:Math.round(stone*m.s),wood:Math.round(wood*m.w),food:Math.round(food*m.f)};}
 
-function updateIncomePreview() {
-  const inc = calcIncome();
-  document.getElementById('income-preview').textContent = `+${inc.gold} 💰`;
-}
+function getSeasonMult(){const s=G.seasonIdx;if(s===0)return{g:1.0,s:1.1,w:1.1,f:1.2};if(s===1)return{g:1.1,s:1.2,w:1.2,f:1.3};if(s===2)return{g:1.0,s:0.9,w:1.0,f:0.8};return{g:0.8,s:0.6,w:0.5,f:0.4};}
 
-function calcIncome() {
-  let gold=35, stone=0, wood=0, food=5;
-  const m = getSeasonMult();
-  for (const w of G.workers) {
-    const wp = WORKERS_POOL.find(x => x.id === w.poolId);
-    if (!wp) continue;
-    if (w.assign==='stone') stone += wp.stoneB;
-    else if (w.assign==='wood') wood += wp.woodB;
-    else if (w.assign==='food') food += wp.foodB;
-    else if (w.assign==='gold') gold += wp.goldB;
-    gold -= wp.wage;
-  }
-  return { gold:Math.round(gold*m.g), stone:Math.round(stone*m.s), wood:Math.round(wood*m.w), food:Math.round(food*m.f) };
-}
+function advanceTurn(){const inc=calcIncome();G.gold=Math.min(G.maxGold,Math.max(0,G.gold+inc.gold));G.stone=Math.min(G.maxStone,Math.max(0,G.stone+inc.stone));G.wood=Math.min(G.maxWood,Math.max(0,G.wood+inc.wood));G.food=Math.min(G.maxFood,Math.max(0,G.food+inc.food));const eat=G.workers.length*2+5;G.food=Math.max(0,G.food-eat);if(G.food<10){G.morale=Math.max(0,G.morale-15);addEvent('🍞 Hunger grips the land! Morale falls.','bad');}else if(G.food>80)G.morale=Math.min(100,G.morale+5);const p=[];if(inc.gold>0)p.push('+'+inc.gold+'💰');if(inc.stone>0)p.push('+'+inc.stone+'🪨');if(inc.wood>0)p.push('+'+inc.wood+'🪵');if(inc.food>0)p.push('+'+inc.food+'🍞');if(p.length)addEvent(`📅 ${SEASONS[G.seasonIdx]}: ${p.join(' ')} gathered`,'good');maybeRandomEvent();G.seasonIdx=(G.seasonIdx+1)%4;if(G.seasonIdx===0)G.year++;renderAll();}
 
-function getSeasonMult() {
-  const s = G.seasonIdx;
-  if (s===0) return {g:1.0,s:1.1,w:1.1,f:1.2};
-  if (s===1) return {g:1.1,s:1.2,w:1.2,f:1.3};
-  if (s===2) return {g:1.0,s:0.9,w:1.0,f:0.8};
-  return              {g:0.8,s:0.6,w:0.5,f:0.4};
-}
+function maybeRandomEvent(){if(Math.random()>0.35)return;const evs=[{t:'🌧️ Heavy rains slow the quarry. -10 stone.',fn:()=>G.stone=Math.max(0,G.stone-10),type:'bad'},{t:"🔥 Fire in the woodcutter's camp! -15 wood.",fn:()=>G.wood=Math.max(0,G.wood-15),type:'bad'},{t:'💎 A merchant caravan arrives! +60 gold.',fn:()=>G.gold=Math.min(G.maxGold,G.gold+60),type:'gold'},{t:'🌾 A bountiful harvest! +30 food.',fn:()=>G.food=Math.min(G.maxFood,G.food+30),type:'good'},{t:'⚔️ Bandits raid the quarry! -20 stone.',fn:()=>G.stone=Math.max(0,G.stone-20),type:'bad'},{t:'🎉 A festival lifts spirits! +10 morale.',fn:()=>G.morale=Math.min(100,G.morale+10),type:'good'},{t:'🌟 A tax windfall rewards your rule! +50 gold.',fn:()=>G.gold=Math.min(G.maxGold,G.gold+50),type:'gold'},{t:'❄️ An early frost strikes! -15 food.',fn:()=>G.food=Math.max(0,G.food-15),type:'bad'}];const ev=evs[Math.floor(Math.random()*evs.length)];ev.fn();addEvent(ev.t,ev.type);}
 
-/* ═══════════════════════════════════════
-   ADVANCE TURN
-═══════════════════════════════════════ */
-function advanceTurn() {
-  const inc = calcIncome();
-  G.gold  = Math.min(G.maxGold,  Math.max(0, G.gold  + inc.gold));
-  G.stone = Math.min(G.maxStone, Math.max(0, G.stone + inc.stone));
-  G.wood  = Math.min(G.maxWood,  Math.max(0, G.wood  + inc.wood));
-  G.food  = Math.min(G.maxFood,  Math.max(0, G.food  + inc.food));
-  const eat = G.workers.length * 2 + 5;
-  G.food = Math.max(0, G.food - eat);
-  if (G.food < 10) { G.morale = Math.max(0, G.morale-15); addEvent('🍞 Hunger grips the land! Morale falls.','bad'); }
-  else if (G.food > 80) G.morale = Math.min(100, G.morale+5);
-  const parts = [];
-  if (inc.gold>0) parts.push('+'+inc.gold+'💰');
-  if (inc.stone>0) parts.push('+'+inc.stone+'🪨');
-  if (inc.wood>0) parts.push('+'+inc.wood+'🪵');
-  if (inc.food>0) parts.push('+'+inc.food+'🍞');
-  if (parts.length) addEvent(`📅 ${SEASONS[G.seasonIdx]}: ${parts.join(' ')} gathered`, 'good');
-  maybeRandomEvent();
-  G.seasonIdx = (G.seasonIdx+1)%4;
-  if (G.seasonIdx===0) G.year++;
-  renderAll();
-}
+function renderWorkerList(){const el=document.getElementById('worker-list');if(!G.workers.length){el.innerHTML='<div style="color:var(--stone);font-style:italic;font-size:13px;padding:8px 0;">No workers hired yet.</div>';return;}el.innerHTML=G.workers.map(w=>{const wp=WORKERS_POOL.find(x=>x.id===w.poolId);return`<div class="worker-item"><div><div class="w-name">${wp.name}</div><div class="w-role">${wp.role}</div></div><span class="w-wage">-${wp.wage}💰</span><span class="w-status ${w.assign?'busy':'idle'}">${w.assign?'⚒ '+w.assign:'· Idle'}</span></div>`;}).join('');}
 
-function maybeRandomEvent() {
-  if (Math.random()>0.35) return;
-  const evs = [
-    {t:'🌧️ Heavy rains slow the quarry. -10 stone.', fn:()=>G.stone=Math.max(0,G.stone-10), type:'bad'},
-    {t:'🔥 Fire in the woodcutter\'s camp! -15 wood.', fn:()=>G.wood=Math.max(0,G.wood-15), type:'bad'},
-    {t:'💎 A merchant caravan arrives! +60 gold.', fn:()=>G.gold=Math.min(G.maxGold,G.gold+60), type:'gold'},
-    {t:'🌾 A bountiful harvest! +30 food.', fn:()=>G.food=Math.min(G.maxFood,G.food+30), type:'good'},
-    {t:'⚔️ Bandits raid the quarry! -20 stone.', fn:()=>G.stone=Math.max(0,G.stone-20), type:'bad'},
-    {t:'🎉 A festival lifts spirits! +10 morale.', fn:()=>G.morale=Math.min(100,G.morale+10), type:'good'},
-    {t:'🌟 A tax windfall! +50 gold.', fn:()=>G.gold=Math.min(G.maxGold,G.gold+50), type:'gold'},
-    {t:'❄️ Early frost! -15 food.', fn:()=>G.food=Math.max(0,G.food-15), type:'bad'},
-  ];
-  const ev = evs[Math.floor(Math.random()*evs.length)];
-  ev.fn();
-  addEvent(ev.t, ev.type);
-}
+function renderHireList(){const el=document.getElementById('hire-list');const av=WORKERS_POOL.filter(wp=>!G.workers.find(w=>w.poolId===wp.id));if(!av.length){el.innerHTML='<div style="color:var(--stone);font-style:italic;">All workers hired!</div>';return;}el.innerHTML=av.map(wp=>`<div class="hire-row"><div><div class="h-name">${wp.name}</div><div class="h-role">${wp.role}</div></div><span class="h-cost">${wp.wage*3}💰</span><button class="btn-secondary" style="font-size:11px;padding:5px 12px;" onclick="hireWorker('${wp.id}')">Hire</button></div>`).join('');}
 
-/* ═══════════════════════════════════════
-   WORKERS
-═══════════════════════════════════════ */
-function renderWorkerList() {
-  const el = document.getElementById('worker-list');
-  if (!G.workers.length) { el.innerHTML='<div style="color:var(--ink-light);font-style:italic;font-size:13px;padding:8px 0;">No workers hired yet.</div>'; return; }
-  el.innerHTML = G.workers.map(w => {
-    const wp = WORKERS_POOL.find(x=>x.id===w.poolId);
-    return `<div class="worker-item">
-      <div><div class="worker-name">${wp.name}</div><div class="worker-role">${wp.role}</div></div>
-      <span class="worker-wage">-${wp.wage}💰</span>
-      <span class="w-status ${w.assign?'busy':'idle'}">${w.assign?'⚒ '+w.assign:'· Idle'}</span>
-    </div>`;
-  }).join('');
-}
+function renderAssignList(){const el=document.getElementById('assign-list');if(!G.workers.length){el.innerHTML='<div style="color:var(--stone);font-style:italic;">No workers to assign.</div>';return;}el.innerHTML=G.workers.map(w=>{const wp=WORKERS_POOL.find(x=>x.id===w.poolId);const opts=['stone','wood','food','gold'].map(t=>`<option value="${t}" ${w.assign===t?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('');return`<div class="hire-row"><div><div class="h-name">${wp.name}</div><div class="h-role">${wp.role}</div></div><select onchange="assignWorker('${w.id}',this.value)"><option value="">Idle</option>${opts}</select><button class="btn-danger" style="margin-left:6px;" onclick="fireWorker('${w.id}')">Fire</button></div>`;}).join('');}
 
-function renderHireList() {
-  const el = document.getElementById('hire-list');
-  const avail = WORKERS_POOL.filter(wp => !G.workers.find(w=>w.poolId===wp.id));
-  if (!avail.length) { el.innerHTML='<div style="color:var(--ink-light);font-style:italic;">All workers hired!</div>'; return; }
-  el.innerHTML = avail.map(wp => `
-    <div class="hire-row">
-      <div><div class="hire-name">${wp.name}</div><div class="hire-role">${wp.role}</div></div>
-      <span class="hire-cost">${wp.wage*3}💰</span>
-      <button class="btn-secondary" style="font-size:11px;padding:5px 12px;" onclick="hireWorker('${wp.id}')">Hire</button>
-    </div>`).join('');
-}
+function hireWorker(poolId){const wp=WORKERS_POOL.find(x=>x.id===poolId);const cost=wp.wage*3;if(G.gold<cost){notify('Not enough gold! Need '+cost+'💰','error');return;}G.gold-=cost;G.workers.push({id:'w_'+Date.now(),poolId,assign:''});addEvent(`👷 ${wp.name} (${wp.role}) hired for ${cost}💰.`,'good');renderAll();notify(wp.name+' hired!','success');}
 
-function renderAssignList() {
-  const el = document.getElementById('assign-list');
-  if (!G.workers.length) { el.innerHTML='<div style="color:var(--ink-light);font-style:italic;">No workers to assign.</div>'; return; }
-  el.innerHTML = G.workers.map(w => {
-    const wp = WORKERS_POOL.find(x=>x.id===w.poolId);
-    const opts = ['stone','wood','food','gold'].map(t=>`<option value="${t}" ${w.assign===t?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('');
-    return `<div class="hire-row">
-      <div><div class="hire-name">${wp.name}</div><div class="hire-role">${wp.role}</div></div>
-      <select onchange="assignWorker('${w.id}',this.value)">
-        <option value="">Idle</option>${opts}
-      </select>
-      <button class="btn-danger" style="margin-left:6px;" onclick="fireWorker('${w.id}')">Fire</button>
-    </div>`;
-  }).join('');
-}
+function fireWorker(wId){const i=G.workers.findIndex(w=>w.id===wId);if(i<0)return;const wp=WORKERS_POOL.find(x=>x.id===G.workers[i].poolId);G.workers.splice(i,1);addEvent(`👋 ${wp.name} has left your service.`,'neutral');renderAll();}
 
-function hireWorker(poolId) {
-  const wp = WORKERS_POOL.find(x=>x.id===poolId);
-  const cost = wp.wage*3;
-  if (G.gold<cost) { notify('Not enough gold! Need '+cost+'💰','error'); return; }
-  G.gold -= cost;
-  G.workers.push({id:'w_'+Date.now(), poolId, assign:''});
-  addEvent(`👷 ${wp.name} (${wp.role}) hired for ${cost}💰.`,'good');
-  renderAll(); notify(wp.name+' hired!','success');
-}
+function assignWorker(wId,task){const w=G.workers.find(x=>x.id===wId);if(w){w.assign=task;updateIncomePreview();}}
 
-function fireWorker(wId) {
-  const i = G.workers.findIndex(w=>w.id===wId);
-  if (i<0) return;
-  const wp = WORKERS_POOL.find(x=>x.id===G.workers[i].poolId);
-  G.workers.splice(i,1);
-  addEvent(`👋 ${wp.name} has left your service.`,'neutral');
-  renderAll();
-}
+function renderTradeList(){document.getElementById('trade-list').innerHTML=TRADE_ITEMS.map(item=>{const need=(item.gC>0&&G.gold<item.gC)||(item.sC>0&&G.stone<item.sC)||(item.wC>0&&G.wood<item.wC);const dis=need?'disabled':'';const costStr=item.gC>0?item.gC+'💰':item.sC>0?item.sC+'🪨':item.wC>0?item.wC+'🪵':'Earn '+(Math.abs(item.gC))+'💰';return`<div class="trade-item ${dis}" onclick="executeTrade('${item.id}')"><div class="t-icon">${item.icon}</div><div><div class="t-name">${item.name}</div><div class="t-desc">${item.desc}</div></div><div class="t-cost">${costStr}<span>${item.gC<0?'Earn':'Cost'}</span></div></div>`;}).join('');}
 
-function assignWorker(wId, task) {
-  const w = G.workers.find(x=>x.id===wId);
-  if (w) { w.assign=task; updateIncomePreview(); }
-}
+function executeTrade(itemId){const item=TRADE_ITEMS.find(x=>x.id===itemId);if(!item)return;if(item.gC>0&&G.gold<item.gC){notify('Not enough gold!','error');return;}if(item.sC>0&&G.stone<item.sC){notify('Not enough stone!','error');return;}if(item.wC>0&&G.wood<item.wC){notify('Not enough wood!','error');return;}G.gold=Math.max(0,Math.min(G.maxGold,G.gold-item.gC));G.stone=Math.max(0,Math.min(G.maxStone,G.stone-item.sC));G.wood=Math.max(0,Math.min(G.maxWood,G.wood-item.wC));G.food=Math.max(0,Math.min(G.maxFood,G.food-(item.fC||0)));addEvent('🏪 Traded: '+item.name,'neutral');renderAll();notify(item.name+' — done!','success');}
 
-/* ═══════════════════════════════════════
-   TRADE
-═══════════════════════════════════════ */
-function renderTradeList() {
-  document.getElementById('trade-list').innerHTML = TRADE_ITEMS.map(item => {
-    const need = (item.goldC>0&&G.gold<item.goldC)||(item.stoneC>0&&G.stone<item.stoneC)||(item.woodC>0&&G.wood<item.woodC);
-    const dis = need ? 'disabled' : '';
-    const costStr = item.goldC>0 ? item.goldC+'💰' : item.stoneC>0 ? item.stoneC+'🪨' : item.woodC>0 ? item.woodC+'🪵' : 'Earn '+(Math.abs(item.goldC))+'💰';
-    return `<div class="trade-item ${dis}" onclick="executeTrade('${item.id}')">
-      <div class="trade-icon">${item.icon}</div>
-      <div><div class="trade-name">${item.name}</div><div class="trade-desc">${item.desc}</div></div>
-      <div class="trade-cost-col">${costStr}<span>${item.goldC<0?'Earn':'Cost'}</span></div>
-    </div>`;
-  }).join('');
-}
+function addEvent(text,type='neutral'){G.events.unshift({text,type,ts:`${SEASONS[G.seasonIdx]} Y${G.year}`});if(G.events.length>40)G.events.pop();const el=document.getElementById('event-log');if(el)el.innerHTML=G.events.slice(0,20).map(e=>`<div class="ev ${e.type}"><span class="ts">[${e.ts}]</span> ${e.text}</div>`).join('');}
 
-function executeTrade(itemId) {
-  const item = TRADE_ITEMS.find(x=>x.id===itemId);
-  if (!item) return;
-  if (item.goldC>0&&G.gold<item.goldC) { notify('Not enough gold!','error'); return; }
-  if (item.stoneC>0&&G.stone<item.stoneC) { notify('Not enough stone!','error'); return; }
-  if (item.woodC>0&&G.wood<item.woodC) { notify('Not enough wood!','error'); return; }
-  G.gold  = Math.max(0,Math.min(G.maxGold, G.gold -item.goldC));
-  G.stone = Math.max(0,Math.min(G.maxStone,G.stone-item.stoneC));
-  G.wood  = Math.max(0,Math.min(G.maxWood, G.wood -item.woodC));
-  G.food  = Math.max(0,Math.min(G.maxFood, G.food -(item.foodC||0)));
-  addEvent('🏪 Traded: '+item.name,'neutral');
-  renderAll(); notify(item.name+' — done!','success');
-}
+function renderGrid(){const grid=document.getElementById('castle-grid');grid.innerHTML='';for(let r=0;r<GRID_ROWS;r++)for(let c=0;c<GRID_COLS;c++){const key=`${r},${c}`,bId=G.grid[key],block=bId?BLOCKS.find(b=>b.id===bId):null;const cell=document.createElement('div');cell.className='grid-cell'+(block?' placed':'')+(r===GRID_ROWS-1?' ground':'');cell.innerHTML=(block?block.icon:(r===GRID_ROWS-1?'🌿':''))+(block?`<span class="cell-tip">${block.name}</span>`:'');cell.addEventListener('pointerdown',()=>{isDown=true;onCellClick(r,c);});cell.addEventListener('pointerenter',()=>{if(isDown)onCellClick(r,c);});grid.appendChild(cell);}document.addEventListener('pointerup',()=>isDown=false);}
 
-/* ═══════════════════════════════════════
-   EVENTS
-═══════════════════════════════════════ */
-function addEvent(text, type='neutral') {
-  G.events.unshift({text, type, ts:`${SEASONS[G.seasonIdx]} Y${G.year}`});
-  if (G.events.length>40) G.events.pop();
-  const el = document.getElementById('event-log');
-  if (el) el.innerHTML = G.events.slice(0,20).map(e =>
-    `<div class="ev ${e.type}"><span class="ts">[${e.ts}]</span> ${e.text}</div>`
-  ).join('');
-}
+function onCellClick(r,c){const key=`${r},${c}`;if(G.selectedTool==='erase'){if(!G.grid[key])return;const b=BLOCKS.find(x=>x.id===G.grid[key]);G.gold=Math.min(G.maxGold,G.gold+Math.floor(b.goldCost*.5));G.stone=Math.min(G.maxStone,G.stone+Math.floor(b.stoneCost*.5));G.wood=Math.min(G.maxWood,G.wood+Math.floor(b.woodCost*.5));G.goldSpent=Math.max(0,G.goldSpent-b.goldCost);G.stoneSpent=Math.max(0,G.stoneSpent-b.stoneCost);G.woodSpent=Math.max(0,G.woodSpent-b.woodCost);delete G.grid[key];updateHud();}else if(G.selectedBlock){if(G.grid[key])return;const b=BLOCKS.find(x=>x.id===G.selectedBlock);if(!b)return;if(G.gold<b.goldCost){notify('Not enough gold!','error');return;}if(G.stone<b.stoneCost){notify('Not enough stone!','error');return;}if(G.wood<b.woodCost){notify('Not enough wood!','error');return;}G.gold-=b.goldCost;G.stone-=b.stoneCost;G.wood-=b.woodCost;G.goldSpent+=b.goldCost;G.stoneSpent+=b.stoneCost;G.woodSpent+=b.woodCost;G.grid[key]=G.selectedBlock;updateHud();}else return;const cell=document.getElementById('castle-grid').children[r*GRID_COLS+c];if(cell){const bId=G.grid[key],block=bId?BLOCKS.find(x=>x.id===bId):null;cell.className='grid-cell'+(block?' placed':'')+(r===GRID_ROWS-1?' ground':'');cell.innerHTML=(block?block.icon:(r===GRID_ROWS-1?'🌿':''))+(block?`<span class="cell-tip">${block.name}</span>`:'');}updateBuildStats();}
 
-/* ═══════════════════════════════════════
-   BUILD GRID
-═══════════════════════════════════════ */
-let isPointerDown = false;
+function renderPalette(){const cats=[{id:'structure',label:'Fortifications'},{id:'gate',label:'Entrances'},{id:'room',label:'Rooms & Buildings'},{id:'defence',label:'Defences'},{id:'ground',label:'Ground'},{id:'deco',label:'Decoration'}];let html='';cats.forEach(cat=>{const items=BLOCKS.filter(b=>b.cat===cat.id);if(!items.length)return;html+=`<div class="pal-cat">${cat.label}</div>`;items.forEach(b=>{const sel=G.selectedBlock===b.id?'selected':'';html+=`<div class="palette-item ${sel}" id="pal-${b.id}" onclick="selectBlock('${b.id}')"><span class="p-icon">${b.icon}</span><div><div class="p-name">${b.name}</div><div class="p-cost">${b.goldCost?b.goldCost+'💰 ':''} ${b.stoneCost?b.stoneCost+'🪨 ':''} ${b.woodCost?b.woodCost+'🪵':''}</div></div></div>`;});});document.getElementById('palette-list').innerHTML=html;}
 
-function renderGrid() {
-  const grid = document.getElementById('castle-grid');
-  grid.innerHTML = '';
-  for (let r=0;r<GRID_ROWS;r++) {
-    for (let c=0;c<GRID_COLS;c++) {
-      const key=`${r},${c}`;
-      const bId=G.grid[key];
-      const block=bId?BLOCKS.find(b=>b.id===bId):null;
-      const cell=document.createElement('div');
-      cell.className='grid-cell'+(block?' placed':'')+(r===GRID_ROWS-1?' ground':'');
-      cell.dataset.r=r; cell.dataset.c=c;
-      cell.innerHTML=(block?block.icon:(r===GRID_ROWS-1?'🌿':''))+(block?`<span class="cell-tip">${block.name}</span>`:'');
-      cell.addEventListener('pointerdown',()=>{ isPointerDown=true; onCellClick(r,c); });
-      cell.addEventListener('pointerenter',()=>{ if(isPointerDown) onCellClick(r,c); });
-      grid.appendChild(cell);
-    }
-  }
-  document.addEventListener('pointerup',()=>isPointerDown=false,{once:false});
-}
+function selectBlock(id){G.selectedBlock=id;G.selectedTool='place';document.getElementById('tool-erase').classList.remove('selected');document.querySelectorAll('.palette-item').forEach(el=>el.classList.remove('selected'));const el=document.getElementById('pal-'+id);if(el)el.classList.add('selected');const b=BLOCKS.find(x=>x.id===id);if(b)document.getElementById('sel-info').innerHTML=`<strong style="color:var(--parchment)">${b.icon} ${b.name}</strong><br><span style="color:var(--stone-light);font-size:13px;">${b.desc}</span><br><br><span style="font-family:var(--font-display);font-size:12px;color:var(--gold);">${b.goldCost?'💰 '+b.goldCost+' gold &nbsp;':''}${b.stoneCost?'🪨 '+b.stoneCost+' stone &nbsp;':''}${b.woodCost?'🪵 '+b.woodCost+' wood':''}</span><br><span style="font-size:12px;color:var(--stone-light);">Defence +${b.defence} · Prestige +${b.prestige}</span>`;}
 
-function onCellClick(r,c) {
-  const key=`${r},${c}`;
-  if (G.selectedTool==='erase') {
-    if (!G.grid[key]) return;
-    const block=BLOCKS.find(b=>b.id===G.grid[key]);
-    G.gold  = Math.min(G.maxGold, G.gold +Math.floor(block.goldCost *0.5));
-    G.stone = Math.min(G.maxStone,G.stone+Math.floor(block.stoneCost*0.5));
-    G.wood  = Math.min(G.maxWood, G.wood +Math.floor(block.woodCost *0.5));
-    G.goldSpent  = Math.max(0,G.goldSpent -block.goldCost);
-    G.stoneSpent = Math.max(0,G.stoneSpent-block.stoneCost);
-    G.woodSpent  = Math.max(0,G.woodSpent -block.woodCost);
-    delete G.grid[key];
-    updateHud();
-  } else if (G.selectedBlock) {
-    if (G.grid[key]) return;
-    const block=BLOCKS.find(b=>b.id===G.selectedBlock);
-    if (!block) return;
-    if (G.gold <block.goldCost)  { notify('Not enough gold!','error');  return; }
-    if (G.stone<block.stoneCost) { notify('Not enough stone!','error'); return; }
-    if (G.wood <block.woodCost)  { notify('Not enough wood!','error');  return; }
-    G.gold -=block.goldCost; G.stone-=block.stoneCost; G.wood-=block.woodCost;
-    G.goldSpent+=block.goldCost; G.stoneSpent+=block.stoneCost; G.woodSpent+=block.woodCost;
-    G.grid[key]=G.selectedBlock;
-    updateHud();
-  } else return;
-  // Update cell DOM
-  const idx=r*GRID_COLS+c;
-  const cell=document.getElementById('castle-grid').children[idx];
-  if (cell) {
-    const bId=G.grid[key];
-    const block=bId?BLOCKS.find(b=>b.id===bId):null;
-    cell.className='grid-cell'+(block?' placed':'')+(r===GRID_ROWS-1?' ground':'');
-    cell.innerHTML=(block?block.icon:(r===GRID_ROWS-1?'🌿':''))+(block?`<span class="cell-tip">${block.name}</span>`:'');
-  }
-  updateBuildStats();
-}
+function selectTool(tool){G.selectedTool=tool;G.selectedBlock=null;document.querySelectorAll('.palette-item').forEach(el=>el.classList.remove('selected'));if(tool==='erase'){document.getElementById('tool-erase').classList.add('selected');document.getElementById('sel-info').innerHTML='<span style="color:var(--stone-light)">Tap cells to erase (50% refund).</span>';}}
 
-function renderPalette() {
-  const cats = [
-    {id:'structure',label:'Fortifications'},
-    {id:'gate',     label:'Entrances'},
-    {id:'room',     label:'Rooms & Buildings'},
-    {id:'defence',  label:'Defences'},
-    {id:'ground',   label:'Ground'},
-    {id:'deco',     label:'Decoration'},
-  ];
-  let html='';
-  cats.forEach(cat => {
-    const items=BLOCKS.filter(b=>b.cat===cat.id);
-    if (!items.length) return;
-    html+=`<div class="pal-cat-label">${cat.label}</div>`;
-    items.forEach(b => {
-      const sel=G.selectedBlock===b.id?'selected':'';
-      html+=`<div class="palette-item ${sel}" id="pal-${b.id}" onclick="selectBlock('${b.id}')">
-        <span class="pal-icon">${b.icon}</span>
-        <div>
-          <div class="pal-name">${b.name}</div>
-          <div class="pal-cost">${b.goldCost?b.goldCost+'💰 ':''} ${b.stoneCost?b.stoneCost+'🪨 ':''} ${b.woodCost?b.woodCost+'🪵':''}</div>
-        </div>
-      </div>`;
-    });
-  });
-  document.getElementById('palette-list').innerHTML=html;
-}
+function clearGrid(){openModal('Clear the Grid?','This will demolish your design and refund 50% of resources.',()=>{for(const key in G.grid){const b=BLOCKS.find(x=>x.id===G.grid[key]);if(b){G.gold=Math.min(G.maxGold,G.gold+Math.floor(b.goldCost*.5));G.stone=Math.min(G.maxStone,G.stone+Math.floor(b.stoneCost*.5));G.wood=Math.min(G.maxWood,G.wood+Math.floor(b.woodCost*.5));}}G.grid={};G.goldSpent=0;G.stoneSpent=0;G.woodSpent=0;renderGrid();updateBuildStats();updateHud();});}
 
-function selectBlock(id) {
-  G.selectedBlock=id; G.selectedTool='place';
-  document.getElementById('tool-erase').classList.remove('selected');
-  document.querySelectorAll('.palette-item').forEach(el=>el.classList.remove('selected'));
-  const el=document.getElementById('pal-'+id);
-  if (el) el.classList.add('selected');
-  const b=BLOCKS.find(x=>x.id===id);
-  if (b) document.getElementById('sel-info').innerHTML=
-    `<strong style="color:var(--ink)">${b.icon} ${b.name}</strong><br>
-    <span style="color:var(--ink-light);font-size:13px;">${b.desc}</span><br><br>
-    <span style="font-family:'Cinzel',serif;font-size:12px;color:var(--gold);">
-      ${b.goldCost?'💰 '+b.goldCost+' gold &nbsp;':''}${b.stoneCost?'🪨 '+b.stoneCost+' stone &nbsp;':''}${b.woodCost?'🪵 '+b.woodCost+' wood':''}
-    </span><br>
-    <span style="font-size:12px;color:var(--ink-light);">Defence +${b.defence} · Prestige +${b.prestige}</span>`;
-}
+function updateBuildStats(){const ids=Object.values(G.grid);const cnt=cat=>ids.filter(id=>BLOCKS.find(b=>b.id===id)?.cat===cat).length;const sum=prop=>ids.reduce((a,id)=>a+(BLOCKS.find(b=>b.id===id)?.[prop]||0),0);document.getElementById('bs-total').textContent=ids.length;document.getElementById('bs-towers').textContent=ids.filter(id=>id==='tower'||id==='keep').length;document.getElementById('bs-walls').textContent=ids.filter(id=>id==='wall'||id==='battlement').length;document.getElementById('bs-gates').textContent=ids.filter(id=>id==='gate').length;document.getElementById('bs-rooms').textContent=cnt('room');document.getElementById('bs-deco').textContent=cnt('deco');document.getElementById('bs-gold').textContent=G.goldSpent;document.getElementById('bs-stone').textContent=G.stoneSpent;document.getElementById('bs-wood').textContent=G.woodSpent;document.getElementById('bs-defence').textContent=sum('defence');document.getElementById('bs-prestige').textContent=sum('prestige');const gates=ids.filter(id=>id==='gate').length,towers=ids.filter(id=>id==='tower'||id==='keep').length,walls=ids.filter(id=>id==='wall'||id==='battlement').length;const pct=Math.min(100,Math.round((Math.min(1,gates)*30)+(Math.min(4,towers)/4*30)+(Math.min(20,walls)/20*40)));document.getElementById('cp-fill').style.width=pct+'%';document.getElementById('cp-pct').textContent=pct+'%';}
 
-function selectTool(tool) {
-  G.selectedTool=tool; G.selectedBlock=null;
-  document.querySelectorAll('.palette-item').forEach(el=>el.classList.remove('selected'));
-  if (tool==='erase') {
-    document.getElementById('tool-erase').classList.add('selected');
-    document.getElementById('sel-info').innerHTML='<span style="color:var(--ink-light)">Tap/click cells to erase (50% refund).</span>';
-  }
-}
+function checkVictory(){const ids=Object.values(G.grid);if(!ids.filter(id=>id==='gate').length){notify('You need at least one Gatehouse!','error');return;}if(ids.filter(id=>id==='tower'||id==='keep').length<2){notify('Need at least 2 towers or a Keep!','error');return;}if(ids.filter(id=>id==='wall'||id==='battlement').length<10){notify('Need at least 10 wall segments!','error');return;}const defence=ids.reduce((a,id)=>a+(BLOCKS.find(b=>b.id===id)?.defence||0),0);const prestige=ids.reduce((a,id)=>a+(BLOCKS.find(b=>b.id===id)?.prestige||0),0);const ratings=[{min:0,title:'Humble Outpost',desc:'A small but sturdy fort guards your lands.'},{min:30,title:'Fortified Manor',desc:'A proper fortification — your enemies take note.'},{min:60,title:'Noble Castle',desc:'A fine castle rises, the pride of the region.'},{min:100,title:'Mighty Fortress',desc:'A formidable stronghold — bards sing of its walls!'},{min:150,title:'Grand Citadel',desc:'An awe-inspiring citadel — your legend is secure.'},{min:200,title:'Legendary Bastion',desc:'A monument to your greatness. Kings envy your power!'}];const rating=[...ratings].reverse().find(r=>prestige>=r.min)||ratings[0];showScreen('victory');document.getElementById('v-desc').innerHTML=`<em>"${rating.desc}"</em><br><br>Your castle, built over ${G.year} year${G.year>1?'s':''} of your reign, stands as testament to your vision.`;document.getElementById('v-stats').innerHTML=`<div class="panel-title">🏆 Final Score</div><div class="bs"><span class="lbl">Castle Title</span><span class="val" style="color:var(--gold-light)">${rating.title}</span></div><div class="bs"><span class="lbl">Total Blocks</span><span class="val">${ids.length}</span></div><div class="bs"><span class="lbl">Defence Rating</span><span class="val">${defence}</span></div><div class="bs"><span class="lbl">Prestige Score</span><span class="val">${prestige}</span></div><div class="bs"><span class="lbl">Seasons Ruled</span><span class="val">${(G.year-1)*4+G.seasonIdx}</span></div><div class="bs"><span class="lbl">Workers Employed</span><span class="val">${G.workers.length}</span></div><div class="bs"><span class="lbl">Gold Remaining</span><span class="val">${G.gold}💰</span></div>`;}
 
-function clearGrid() {
-  openModal('Clear the Grid?','This will demolish your entire design and refund 50% of resources.',()=>{
-    for (const key in G.grid) {
-      const b=BLOCKS.find(x=>x.id===G.grid[key]);
-      if (b) {
-        G.gold =Math.min(G.maxGold, G.gold +Math.floor(b.goldCost *0.5));
-        G.stone=Math.min(G.maxStone,G.stone+Math.floor(b.stoneCost*0.5));
-        G.wood =Math.min(G.maxWood, G.wood +Math.floor(b.woodCost *0.5));
-      }
-    }
-    G.grid={}; G.goldSpent=0; G.stoneSpent=0; G.woodSpent=0;
-    renderGrid(); updateBuildStats(); updateHud();
-  });
-}
+function switchTab(tab,contentId){const p=tab.closest('.panel');p.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));p.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));tab.classList.add('active');document.getElementById(contentId).classList.add('active');}
 
-function updateBuildStats() {
-  const bIds=Object.values(G.grid);
-  const count=cat=>bIds.filter(id=>BLOCKS.find(b=>b.id===id)?.cat===cat).length;
-  const sum=prop=>bIds.reduce((a,id)=>a+(BLOCKS.find(b=>b.id===id)?.[prop]||0),0);
-  document.getElementById('bs-total').textContent   = bIds.length;
-  document.getElementById('bs-towers').textContent  = bIds.filter(id=>id==='tower'||id==='keep').length;
-  document.getElementById('bs-walls').textContent   = bIds.filter(id=>id==='wall'||id==='battlement').length;
-  document.getElementById('bs-gates').textContent   = bIds.filter(id=>id==='gate').length;
-  document.getElementById('bs-rooms').textContent   = count('room');
-  document.getElementById('bs-deco').textContent    = count('deco');
-  document.getElementById('bs-gold').textContent    = G.goldSpent;
-  document.getElementById('bs-stone').textContent   = G.stoneSpent;
-  document.getElementById('bs-wood').textContent    = G.woodSpent;
-  document.getElementById('bs-defence').textContent = sum('defence');
-  document.getElementById('bs-prestige').textContent= sum('prestige');
-  const gates=bIds.filter(id=>id==='gate').length;
-  const towers=bIds.filter(id=>id==='tower'||id==='keep').length;
-  const walls=bIds.filter(id=>id==='wall'||id==='battlement').length;
-  const pct=Math.min(100,Math.round((Math.min(1,gates)*30)+(Math.min(4,towers)/4*30)+(Math.min(20,walls)/20*40)));
-  document.getElementById('cp-fill').style.width=pct+'%';
-  document.getElementById('cp-pct').textContent=pct+'%';
-}
+function rotateHint(){const el=document.getElementById('hint-text');if(!el)return;el.style.opacity='0';setTimeout(()=>{el.textContent=HINTS[hintIdx%HINTS.length];el.style.opacity='1';hintIdx++;},300);}
 
-/* ═══════════════════════════════════════
-   VICTORY
-═══════════════════════════════════════ */
-function checkVictory() {
-  const bIds=Object.values(G.grid);
-  if (!bIds.filter(id=>id==='gate').length) { notify('You need at least one Gatehouse!','error'); return; }
-  if (bIds.filter(id=>id==='tower'||id==='keep').length<2) { notify('Need at least 2 towers or a Keep!','error'); return; }
-  if (bIds.filter(id=>id==='wall'||id==='battlement').length<10) { notify('Need at least 10 wall segments!','error'); return; }
-  const defence=bIds.reduce((a,id)=>a+(BLOCKS.find(b=>b.id===id)?.defence||0),0);
-  const prestige=bIds.reduce((a,id)=>a+(BLOCKS.find(b=>b.id===id)?.prestige||0),0);
-  const ratings=[
-    {min:0,  title:'Humble Outpost',    desc:'A small but sturdy fort guards your lands.'},
-    {min:30, title:'Fortified Manor',   desc:'A proper fortification — your enemies take note.'},
-    {min:60, title:'Noble Castle',      desc:'A fine castle rises, the pride of the region.'},
-    {min:100,title:'Mighty Fortress',   desc:'A formidable stronghold — bards sing of its walls!'},
-    {min:150,title:'Grand Citadel',     desc:'An awe-inspiring citadel — your legend is secure.'},
-    {min:200,title:'Legendary Bastion', desc:'A monument to your greatness. Kings envy your power!'},
-  ];
-  const rating=[...ratings].reverse().find(r=>prestige>=r.min)||ratings[0];
-  showScreen('victory');
-  document.getElementById('v-desc').innerHTML=`<em>"${rating.desc}"</em><br><br>Your castle, built over ${G.year} year${G.year>1?'s':''} of your reign, stands as testament to your vision.`;
-  document.getElementById('v-stats').innerHTML=`
-    <div class="panel-title">🏆 Final Score</div>
-    <div class="build-stat"><span class="label">Castle Title</span><span class="value" style="color:var(--gold)">${rating.title}</span></div>
-    <div class="build-stat"><span class="label">Total Blocks</span><span class="value">${bIds.length}</span></div>
-    <div class="build-stat"><span class="label">Defence Rating</span><span class="value">${defence}</span></div>
-    <div class="build-stat"><span class="label">Prestige Score</span><span class="value">${prestige}</span></div>
-    <div class="build-stat"><span class="label">Seasons Ruled</span><span class="value">${(G.year-1)*4+G.seasonIdx}</span></div>
-    <div class="build-stat"><span class="label">Workers Employed</span><span class="value">${G.workers.length}</span></div>
-    <div class="build-stat"><span class="label">Gold Remaining</span><span class="value">${G.gold}💰</span></div>`;
-}
+let nTimer;
+function notify(msg,type=''){document.querySelector('.notif')?.remove();const el=document.createElement('div');el.className='notif '+type;el.textContent=msg;document.body.appendChild(el);clearTimeout(nTimer);nTimer=setTimeout(()=>el.remove(),3200);}
 
-/* ═══════════════════════════════════════
-   HELPERS
-═══════════════════════════════════════ */
-function switchTab(tab,contentId) {
-  const panel=tab.closest('.panel');
-  panel.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  panel.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  tab.classList.add('active');
-  document.getElementById(contentId).classList.add('active');
-}
-
-function rotateHint() {
-  const el=document.getElementById('hint-text');
-  if (!el) return;
-  el.style.opacity='0';
-  setTimeout(()=>{ el.textContent=HINTS[hintIdx%HINTS.length]; el.style.opacity='1'; hintIdx++; },300);
-}
-
-let notifTimer;
-function notify(msg,type='') {
-  document.querySelector('.notification')?.remove();
-  const el=document.createElement('div');
-  el.className='notification '+type;
-  el.textContent=msg;
-  document.body.appendChild(el);
-  clearTimeout(notifTimer);
-  notifTimer=setTimeout(()=>el.remove(),3200);
-}
-
-function openModal(title,body,onConfirm) {
-  document.getElementById('modal-title').textContent=title;
-  document.getElementById('modal-body').textContent=body;
-  document.getElementById('modal-ok').onclick=()=>{ closeModal(); onConfirm(); };
-  document.getElementById('modal').classList.add('open');
-}
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function openModal(title,body,onConfirm){document.getElementById('m-title').textContent=title;document.getElementById('m-body').textContent=body;document.getElementById('m-ok').onclick=()=>{closeModal();onConfirm();};document.getElementById('modal').classList.add('open');}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
 </script>
-
 </body>
 </html>
